@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { debouncedRefresh } from "@/lib/animations";
 
 /**
  * Wraps page content for smooth transitions between routes and refreshes ScrollTrigger.
@@ -14,9 +14,7 @@ export default function ViewTransitionWrapper({ children }: { children: React.Re
   // Ensure GSAP ScrollTrigger is refreshed on route change
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (typeof ScrollTrigger !== "undefined") {
-        ScrollTrigger.refresh();
-      }
+      debouncedRefresh();
     }, 100);
     return () => clearTimeout(timer);
   }, [pathname]);

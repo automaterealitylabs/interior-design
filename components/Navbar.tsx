@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { gsap, ScrollTrigger, usePrefersReducedMotion } from "@/lib/animations";
@@ -20,7 +20,7 @@ export default function Navbar() {
   }
 
   // Scroll progress bar
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!progressRef.current || reduced) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -68,7 +68,7 @@ export default function Navbar() {
   };
 
   // Active route tracking
-  useLayoutEffect(() => {
+  useEffect(() => {
     const indicator = indicatorRef.current;
     const navEl = navRef.current;
     if (!indicator || !navEl) return;

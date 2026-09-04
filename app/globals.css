@@ -68,6 +68,19 @@
   ::-webkit-scrollbar-thumb:hover {
     background: var(--stone);
   }
+
+  /* TextReveal: server-rendered masks hide lines until GSAP animates them in.
+     Lines start pushed below the overflow-hidden mask via translateY(105%).
+     This prevents FOUC and keeps hidden text out of LCP contention. */
+  .text-reveal-mask {
+    overflow: hidden;
+    display: block;
+    width: 100%;
+  }
+  .text-reveal-mask > [data-line] {
+    display: block;
+    transform: translateY(105%);
+  }
 }
 
 @layer utilities {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import { gsap, ScrollTrigger, usePrefersReducedMotion } from "@/lib/animations";
+import { useEffect, useRef, useState } from "react";
+import { gsap, ScrollTrigger, debouncedRefresh, usePrefersReducedMotion } from "@/lib/animations";
 import { studio } from "@/lib/site";
 
 /** Cinematic hero: a pinned full-screen video that scrubs in sync with the
@@ -16,7 +16,7 @@ export default function VideoScrubber() {
 
   /* Safari ignores the JSX `muted` attribute on server-rendered video;
      set it imperatively so the element is always muted and seekable. */
-  useLayoutEffect(() => {
+  useEffect(() => {
     const v = videoRef.current;
     if (v) {
       v.muted = true;
@@ -25,7 +25,7 @@ export default function VideoScrubber() {
   }, []);
 
   /* prefers-reduced-motion: show a single static frame, no pin, no scrub. */
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!reduced) return;
     const v = videoRef.current;
     if (!v) return;
@@ -42,7 +42,7 @@ export default function VideoScrubber() {
   /* ------------------------------------------------------------------ */
   /* Main scrub setup                                                    */
   /* ------------------------------------------------------------------ */
-  useLayoutEffect(() => {
+  useEffect(() => {
     const runway = runwayRef.current;
     const video = videoRef.current;
     const copy = copyRef.current;
@@ -78,7 +78,7 @@ export default function VideoScrubber() {
       ready = true;
       video.pause();
       setLoaded(true);
-      ScrollTrigger.refresh();
+      debouncedRefresh();
     };
     video.addEventListener("loadedmetadata", markReady);
     video.addEventListener("loadeddata", markReady);
@@ -186,7 +186,6 @@ export default function VideoScrubber() {
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center text-paper"
         >
           <p
-            data-hero
             className="mb-7 text-[10px] uppercase tracking-far text-paper/70 md:mb-9 md:text-[11px]"
           >
             {studio.tagline}

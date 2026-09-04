@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ElementType, type ReactNode } from "react";
+import { useEffect, useRef, type ElementType, type ReactNode } from "react";
 import { gsap, usePrefersReducedMotion } from "@/lib/animations";
 
 type MaskedRevealProps = {
@@ -35,7 +35,7 @@ export default function MaskedReveal({
   const ref = useRef<HTMLElement | null>(null);
   const reduced = usePrefersReducedMotion();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const el = ref.current;
     if (!el) return;
 

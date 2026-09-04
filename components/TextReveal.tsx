@@ -1,6 +1,13 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode, type ElementType } from "react";
+import {
+  useEffect,
+  useRef,
+  Children,
+  isValidElement,
+  type ReactNode,
+  type ElementType,
+} from "react";
 import { gsap, usePrefersReducedMotion } from "@/lib/animations";
 
 type TextRevealProps = {
@@ -18,8 +25,9 @@ type TextRevealProps = {
 };
 
 /**
- * Masks each line (consumer wraps lines in <span data-line>) and reveals them
- * by sliding up from behind the mask. Respects prefers-reduced-motion.
+ * Server-renders each [data-line] child inside an overflow-hidden mask.
+ * Lines start translated below the mask via CSS (`globals.css`) and are
+ * revealed by GSAP sliding them into view.  Respects prefers-reduced-motion.
  */
 export default function TextReveal({
   children,
@@ -33,28 +41,22 @@ export default function TextReveal({
   const ref = useRef<HTMLElement>(null);
   const reduced = usePrefersReducedMotion();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const el = ref.current;
-    if (!el || reduced) {
-      if (el) gsap.set(el, { clearProps: "all" });
+    if (!el) return;
+
+    const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
+    if (lines.length === 0) return;
+
+    if (reduced) {
+      // Show text immediately for reduced motion users
+      lines.forEach((line) => {
+        line.style.transform = "none";
+      });
       return;
     }
 
     const ctx = gsap.context(() => {
-      const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
-      if (lines.length === 0) return;
-
-      // Wrap each line in an overflow-hidden mask so it slides up from behind.
-      lines.forEach((line) => {
-        if (line.parentElement?.classList.contains("text-reveal-mask")) return;
-        const wrapper = document.createElement("div");
-        wrapper.className = "text-reveal-mask";
-        wrapper.style.cssText = "overflow:hidden; display:block; width:100%;";
-        line.parentElement?.insertBefore(wrapper, line);
-        wrapper.appendChild(line);
-        line.style.display = "block";
-      });
-
       gsap.fromTo(
         lines,
         { yPercent: 105 },
@@ -71,9 +73,25 @@ export default function TextReveal({
     return () => ctx.revert();
   }, [reduced, speed, stagger, delay, ease]);
 
+  // Server-render masks: wrap each [data-line] child in an overflow-hidden container.
+  // CSS in globals.css hides [data-line] via translateY(105%) until GSAP animates.
+  const maskedChildren = Children.map(children, (child) => {
+    if (
+      isValidElement(child) &&
+      (child.props as Record<string, unknown>)["data-line"] !== undefined
+    ) {
+      return (
+        <span className="text-reveal-mask">
+          {child}
+        </span>
+      );
+    }
+    return child;
+  });
+
   return (
     <Tag ref={ref} className={className}>
-      {children}
+      {maskedChildren}
     </Tag>
   );
 }

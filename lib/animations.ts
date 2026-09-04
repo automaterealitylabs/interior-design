@@ -22,13 +22,24 @@ export function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
+/** Coalesces multiple ScrollTrigger.refresh() calls into one per frame.
+ *  Prevents redundant forced reflows when many components mount together. */
+let _refreshRaf: number | null = null;
+export function debouncedRefresh() {
+  if (_refreshRaf !== null) return;
+  _refreshRaf = requestAnimationFrame(() => {
+    _refreshRaf = null;
+    ScrollTrigger.refresh();
+  });
+}
+
 /** Recalculates ScrollTrigger positions once fonts/network settle. */
 export function useScrollRefresh() {
   useEffect(() => {
-    const onLoad = () => ScrollTrigger.refresh();
+    const onLoad = () => debouncedRefresh();
     // double rAF: after paint, after layout of webfonts and the hero video.
     const raf1 = requestAnimationFrame(() =>
-      requestAnimationFrame(() => ScrollTrigger.refresh()),
+      requestAnimationFrame(() => debouncedRefresh()),
     );
     window.addEventListener("load", onLoad);
     return () => {
@@ -37,3 +48,4 @@ export function useScrollRefresh() {
     };
   }, []);
 }
+

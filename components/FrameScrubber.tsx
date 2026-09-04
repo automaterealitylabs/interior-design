@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { gsap, ScrollTrigger, usePrefersReducedMotion } from "@/lib/animations";
+import { gsap, ScrollTrigger, debouncedRefresh, usePrefersReducedMotion } from "@/lib/animations";
 import { studio } from "@/lib/site";
 import TextReveal from "./TextReveal";
 
@@ -18,6 +18,27 @@ export default function FrameScrubber() {
   // Array of 300 preloaded HTMLImageElements
   const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
   const currentFrameRef = useRef(0);
+
+  // Cached canvas dimensions — eliminates per-tick clientWidth/clientHeight reads
+  const canvasSizeRef = useRef({ w: 0, h: 0, dpr: 1 });
+
+  const measureCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvasSizeRef.current = {
+      w: canvas.clientWidth,
+      h: canvas.clientHeight,
+      dpr,
+    };
+    // Resize the backing buffer to match
+    const bufW = canvasSizeRef.current.w * dpr;
+    const bufH = canvasSizeRef.current.h * dpr;
+    if (canvas.width !== bufW || canvas.height !== bufH) {
+      canvas.width = bufW;
+      canvas.height = bufH;
+    }
+  }, []);
 
   // Helper to load a single frame on-demand if not already loading
   const loadFrame = useCallback((index: number) => {
@@ -38,7 +59,7 @@ export default function FrameScrubber() {
     return img;
   }, []);
 
-  // Draws a specific frame to the canvas with high-DPI crispness and cover fit
+  // Draws a specific frame to the canvas — reads ONLY cached dimensions (no layout)
   const drawFrame = useCallback((frameIndex: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -74,18 +95,9 @@ export default function FrameScrubber() {
       return;
     }
 
-    // High-DPI canvas resolution adjustment
-    const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    const displayWidth = canvas.clientWidth;
-    const displayHeight = canvas.clientHeight;
-
-    if (
-      canvas.width !== displayWidth * dpr ||
-      canvas.height !== displayHeight * dpr
-    ) {
-      canvas.width = displayWidth * dpr;
-      canvas.height = displayHeight * dpr;
-    }
+    // Use cached dimensions — no layout-triggering reads
+    const { w: displayWidth, h: displayHeight, dpr } = canvasSizeRef.current;
+    if (displayWidth === 0 || displayHeight === 0) return;
 
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -120,6 +132,9 @@ export default function FrameScrubber() {
   useEffect(() => {
     let cancelled = false;
     imagesRef.current = new Array(TOTAL_FRAMES).fill(null);
+
+    // Initial canvas measurement
+    measureCanvas();
 
     // Tier 1: Immediately load first 20 frames for instant initial scroll
     for (let i = 0; i < 20; i++) {
@@ -162,15 +177,21 @@ export default function FrameScrubber() {
       const img0 = imagesRef.current[0];
       if (img0 && img0.complete && img0.naturalWidth > 0) {
         drawFrame(0);
-        ScrollTrigger.refresh();
+        debouncedRefresh();
       } else {
         requestAnimationFrame(checkInitialFrame);
       }
     };
     checkInitialFrame();
 
+    // Debounced resize handler — only place we re-measure canvas dimensions
+    let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
-      drawFrame(currentFrameRef.current);
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        measureCanvas();
+        drawFrame(currentFrameRef.current);
+      }, 100);
     };
     window.addEventListener("resize", handleResize);
 
@@ -178,9 +199,10 @@ export default function FrameScrubber() {
       cancelled = true;
       clearTimeout(keyframesTimeout);
       clearTimeout(streamTimeout);
+      clearTimeout(resizeTimer);
       window.removeEventListener("resize", handleResize);
     };
-  }, [loadFrame, drawFrame]);
+  }, [loadFrame, drawFrame, measureCanvas]);
 
   // GSAP ScrollTrigger timeline for buttery-smooth frame scrubbing
   useEffect(() => {
@@ -249,7 +271,7 @@ export default function FrameScrubber() {
       });
     }, runway);
 
-    ScrollTrigger.refresh();
+    debouncedRefresh();
 
     return () => ctx.revert();
   }, [reduced, drawFrame]);
@@ -277,7 +299,6 @@ export default function FrameScrubber() {
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center text-paper"
         >
           <p
-            data-hero
             className="mb-7 text-[10px] uppercase tracking-far text-paper/70 md:mb-9 md:text-[11px]"
           >
             {studio.tagline}
@@ -311,3 +332,4 @@ export default function FrameScrubber() {
     </div>
   );
 }
+
