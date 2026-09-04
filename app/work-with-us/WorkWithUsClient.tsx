@@ -310,7 +310,10 @@ export default function WorkWithUsClient() {
                     </span>
                   </div>
                   <div className="mt-4 flex items-baseline gap-2">
-                    <span className="font-serif text-3xl text-ink font-normal">{tier.priceINR}</span>
+                    <span className="font-serif text-3xl text-ink font-normal">
+                      <span className="font-currency text-[0.85em] mr-0.5 inline-block select-none not-italic">₹</span>
+                      {tier.priceINR.replace(/^₹/, "")}
+                    </span>
                     <span className="font-mono text-[11px] text-stone">/ {tier.priceUSD}</span>
                   </div>
                   <p className="mt-3 text-[12px] text-taupe font-sans leading-relaxed">

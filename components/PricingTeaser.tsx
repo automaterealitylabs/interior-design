@@ -91,7 +91,16 @@ export default function PricingTeaser() {
                     </span>
                     <div className="mt-1 flex items-baseline gap-2">
                       <span className="font-serif text-3xl font-normal text-ink">
-                        {pkg.priceStarting}
+                        <span
+                          className="font-currency font-sans text-[0.82em] mr-0.5 inline-block select-none not-italic"
+                          style={{
+                            fontFamily:
+                              'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+                          }}
+                        >
+                          ₹
+                        </span>
+                        {pkg.priceStarting.replace(/^₹/, "")}
                       </span>
                       <span className="font-mono text-[11px] text-taupe">
                         {pkg.priceUnit}

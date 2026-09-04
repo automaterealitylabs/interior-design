@@ -175,23 +175,23 @@ export default function CostCalculator({ initialTier = "Signature" }: { initialT
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 font-mono text-[11px]">
                   <div className="rounded-xs border border-line bg-paper-2 p-3">
                     <span className="text-taupe block text-[10px]">Joinery (42%)</span>
-                    <span className="text-ink font-semibold">₹{lakh(joineryEst)}L</span>
+                    <span className="text-ink font-semibold"><span className="font-currency select-none">₹</span>{lakh(joineryEst)}L</span>
                   </div>
                   <div className="rounded-xs border border-line bg-paper-2 p-3">
                     <span className="text-taupe block text-[10px]">Civil & Floor (22%)</span>
-                    <span className="text-ink font-semibold">₹{lakh(civilEst)}L</span>
+                    <span className="text-ink font-semibold"><span className="font-currency select-none">₹</span>{lakh(civilEst)}L</span>
                   </div>
                   <div className="rounded-xs border border-line bg-paper-2 p-3">
                     <span className="text-taupe block text-[10px]">Lighting (14%)</span>
-                    <span className="text-ink font-semibold">₹{lakh(lightingEst)}L</span>
+                    <span className="text-ink font-semibold"><span className="font-currency select-none">₹</span>{lakh(lightingEst)}L</span>
                   </div>
                   <div className="rounded-xs border border-line bg-paper-2 p-3">
                     <span className="text-taupe block text-[10px]">Soft Furnishing (12%)</span>
-                    <span className="text-ink font-semibold">₹{lakh(furnishingEst)}L</span>
+                    <span className="text-ink font-semibold"><span className="font-currency select-none">₹</span>{lakh(furnishingEst)}L</span>
                   </div>
                   <div className="rounded-xs border border-line bg-paper-2 p-3 sm:col-span-2">
                     <span className="text-taupe block text-[10px]">Design & Site Mgmt (10%)</span>
-                    <span className="text-ink font-semibold">₹{lakh(feesEst)}L</span>
+                    <span className="text-ink font-semibold"><span className="font-currency select-none">₹</span>{lakh(feesEst)}L</span>
                   </div>
                 </div>
               </div>
@@ -211,14 +211,14 @@ export default function CostCalculator({ initialTier = "Signature" }: { initialT
                   </div>
 
                   <p className="mt-8 font-serif text-[clamp(2.2rem,4vw,3.2rem)] font-light italic leading-tight text-paper">
-                    &#8377;{lakh(low)}L
+                    <span className="font-currency text-[0.85em] mr-0.5 inline-block select-none not-italic">₹</span>{lakh(low)}L
                     <span className="mx-2 font-sans text-xl not-italic text-stone">
                       &ndash;
                     </span>
-                    &#8377;{lakh(high)}L
+                    <span className="font-currency text-[0.85em] mr-0.5 inline-block select-none not-italic">₹</span>{lakh(high)}L
                   </p>
                   <p className="mt-4 font-mono text-[11px] leading-relaxed text-stone">
-                    &#8377;{fmt(rate)} / ft&sup2; &middot; {style} &middot; {budget} Tier
+                    <span className="font-currency select-none">₹</span>{fmt(rate)} / ft&sup2; &middot; {style} &middot; {budget} Tier
                   </p>
 
                   <div className="mt-8 space-y-2 border-t border-line-light pt-6 text-[12px] text-stone font-sans">

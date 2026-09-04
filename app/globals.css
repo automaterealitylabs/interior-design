@@ -218,6 +218,12 @@
       animation-duration: 0.001ms;
     }
   }
+
+  /* Currency symbol uses system font to avoid triggering latin-ext webfont downloads */
+  .font-currency {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+    font-style: normal;
+  }
 }
 
 /* The scroll runway is compressed to a single viewport under

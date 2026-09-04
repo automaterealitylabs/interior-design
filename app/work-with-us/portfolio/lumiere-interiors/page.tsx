@@ -155,7 +155,7 @@ export default function LumiereCaseStudyPage() {
                   The Brief: Why Most Interior Websites Fail to Convert
                 </h2>
                 <p className="text-[14px] leading-relaxed text-taupe font-sans">
-                  The interior design and luxury architecture sector operates on high-ticket contracts where single commissions exceed ₹25 Lakhs to ₹3+ Crores ($30k – $350k). Yet almost every interior design website suffers from three fatal problems:
+                  The interior design and luxury architecture sector operates on high-ticket contracts where single commissions exceed <span className="font-currency select-none">₹</span>25 Lakhs to <span className="font-currency select-none">₹</span>3+ Crores ($30k – $350k). Yet almost every interior design website suffers from three fatal problems:
                 </p>
                 <ul className="space-y-3 text-[13px] text-taupe font-sans pt-2">
                   <li className="flex items-start gap-2">
