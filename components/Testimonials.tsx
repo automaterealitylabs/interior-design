@@ -27,70 +27,63 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="relative bg-ink py-32 text-paper md:py-44">
       <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-16">
-        <Reveal as="div" y={0} duration={1}>
-          <div className="flex items-center gap-5">
-            <span className="font-mono text-[11px] text-stone">14</span>
-            <span className="text-[11px] uppercase tracking-luxe text-stone">
-              Words
-            </span>
-            <span className="h-px flex-1 bg-line-light" />
-          </div>
+        <Reveal className="flex items-center gap-5" y={0} duration={1}>
+          <span className="font-mono text-[11px] text-stone">14</span>
+          <span className="text-[11px] uppercase tracking-luxe text-stone">
+            Words
+          </span>
+          <span className="h-px flex-1 bg-line-light" />
         </Reveal>
 
-        <div className="mt-14 md:mt-20">
-          <Reveal as="div" y={50} duration={1.3} start="top 88%">
-            <TextReveal
-              as="h2"
-              className="max-w-3xl font-sans text-[clamp(1.8rem,4.4vw,4.2rem)] font-light uppercase leading-[1.05] tracking-[0.02em]"
-              speed={1.2}
-              stagger={0.06}
-              delay={0.15}
-            >
-              <span className="block" data-line>From the people who live</span>
-              <span className="block" data-line>in our work.</span>
-            </TextReveal>
-          </Reveal>
-        </div>
+        <Reveal className="mt-14 md:mt-20" y={50} duration={1.3} start="top 88%">
+          <TextReveal
+            as="h2"
+            className="max-w-3xl font-sans text-[clamp(1.8rem,4.4vw,4.2rem)] font-light uppercase leading-[1.05] tracking-[0.02em]"
+            speed={1.2}
+            stagger={0.06}
+            delay={0.15}
+          >
+            <span className="block" data-line>From the people who live</span>
+            <span className="block" data-line>in our work.</span>
+          </TextReveal>
+        </Reveal>
 
-        <Reveal as="div" y={40} duration={1.2} start="top 92%">
-          <div className="relative mt-16 md:mt-24">
-            <div className="relative min-h-[380px] md:min-h-[320px]">
-              {testimonials.map((t, i) => (
-                <figure
-                  key={t.name}
-                  className={`absolute inset-0 flex flex-col justify-between transition-opacity duration-700 ${
-                    i === idx ? "opacity-100" : "pointer-events-none opacity-0"
-                  }`}
-                >
-                  <div>
-                    <span
-                      aria-hidden="true"
-                      className="font-serif text-6xl italic leading-none text-brass/60"
-                    >
-                      &ldquo;
+        <Reveal className="relative mt-16 md:mt-24" y={40} duration={1.2} start="top 92%">
+          <div className="relative min-h-[380px] md:min-h-[320px]">
+            {testimonials.map((t, i) => (
+              <figure
+                key={t.name}
+                className={`absolute inset-0 flex flex-col justify-between transition-opacity duration-700 ${
+                  i === idx ? "opacity-100" : "pointer-events-none opacity-0"
+                }`}
+              >
+                <div>
+                  <span
+                    aria-hidden="true"
+                    className="font-serif text-6xl italic leading-none text-brass/60"
+                  >
+                    &ldquo;
+                  </span>
+                  <blockquote className="mt-2 max-w-3xl font-serif text-[clamp(1.4rem,2.8vw,2.4rem)] font-light italic leading-[1.4] text-paper/90">
+                    {t.text}
+                  </blockquote>
+                </div>
+                <figcaption className="mt-10">
+                  <div className="flex items-center gap-2 text-brass">
+                    <span className="text-[11px] tracking-widest">
+                      {"★".repeat(t.rating)}
                     </span>
-                    <blockquote className="mt-2 max-w-3xl font-serif text-[clamp(1.4rem,2.8vw,2.4rem)] font-light italic leading-[1.4] text-paper/90">
-                      {t.text}
-                    </blockquote>
                   </div>
-                  <figcaption className="mt-10">
-                    <div className="flex items-center gap-2 text-brass">
-                      {Array.from({ length: t.rating }).map((_, s) => (
-                        <span key={s} className="text-[11px]">
-                          &#9733;
-                        </span>
-                      ))}
-                    </div>
-                    <p className="mt-3 font-serif text-lg italic text-paper">
-                      {t.name}
-                    </p>
-                    <p className="mt-1 font-mono text-[10px] uppercase tracking-luxe text-stone">
-                      {t.project}
-                    </p>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+                  <p className="mt-3 font-serif text-lg italic text-paper">
+                    {t.name}
+                  </p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-luxe text-stone">
+                    {t.project}
+                  </p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
 
             <div className="mt-12 flex items-center gap-8 border-t border-line-light pt-6">
               <button
@@ -114,7 +107,6 @@ export default function Testimonials() {
                 &#8594;
               </button>
             </div>
-          </div>
         </Reveal>
       </div>
     </section>

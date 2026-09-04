@@ -13,11 +13,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const reduced = usePrefersReducedMotion();
   const pathname = usePathname();
-
-  // On agency section, AgencyNav in layout takes over
-  if (pathname.startsWith("/work-with-us")) {
-    return null;
-  }
+  const isAgency = pathname.startsWith("/work-with-us");
 
   // Scroll progress bar
   useEffect(() => {
@@ -151,15 +147,17 @@ export default function Navbar() {
 
   const close = () => setOpen(false);
 
+  if (isAgency) {
+    return null;
+  }
+
   return (
     <>
       {/* scroll progress */}
-      <div className="fixed inset-x-0 top-0 z-[70] h-[2px]">
-        <div
-          ref={progressRef}
-          className="h-full w-full origin-left scale-x-0 bg-brass will-change-transform"
-        />
-      </div>
+      <div
+        ref={progressRef}
+        className="fixed inset-x-0 top-0 z-[70] h-[2px] w-full origin-left scale-x-0 bg-brass will-change-transform"
+      />
 
       <header className="fixed inset-x-0 top-0 z-[60] mix-blend-difference">
         <div className="flex items-center justify-between px-6 py-5 text-paper md:px-10 md:py-6">

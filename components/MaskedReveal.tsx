@@ -76,7 +76,7 @@ export default function MaskedReveal({
       ref={ref}
       className={`overflow-hidden ${className ?? ""}`}
     >
-      <div className={innerClassName}>{children}</div>
+      {innerClassName ? <div className={innerClassName}>{children}</div> : children}
     </Tag>
   );
 }

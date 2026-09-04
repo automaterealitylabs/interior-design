@@ -13,32 +13,28 @@ export default function FieldNotes() {
       className="relative scroll-mt-24 bg-paper py-32 text-ink md:py-44"
     >
       <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-16">
-        <Reveal as="div" y={0} duration={1}>
-          <div className="flex items-center gap-5">
-            <span className="font-mono text-[11px] text-taupe">IV</span>
-            <span className="text-[11px] uppercase tracking-luxe text-taupe">
-              Field Notes
-            </span>
-            <span className="h-px flex-1 bg-line" />
-          </div>
+        <Reveal className="flex items-center gap-5" y={0} duration={1}>
+          <span className="font-mono text-[11px] text-taupe">IV</span>
+          <span className="text-[11px] uppercase tracking-luxe text-taupe">
+            Field Notes
+          </span>
+          <span className="h-px flex-1 bg-line" />
         </Reveal>
 
-        <div className="mt-14 max-w-3xl md:mt-20">
-          <Reveal as="div" y={50} duration={1.3} start="top 88%">
-            <TextReveal
-              as="h2"
-              className="font-serif text-[clamp(1.9rem,4vw,3.8rem)] font-light leading-[1.1]"
-              speed={1.2}
-              stagger={0.06}
-              delay={0.15}
-            >
-              <span className="block" data-line>Notes from the studio floor —</span>
-              <span className="block" data-line>
-                <em className="italic text-brass">observed, not drafted</em>.
-              </span>
-            </TextReveal>
-          </Reveal>
-        </div>
+        <Reveal className="mt-14 max-w-3xl md:mt-20" y={50} duration={1.3} start="top 88%">
+          <TextReveal
+            as="h2"
+            className="font-serif text-[clamp(1.9rem,4vw,3.8rem)] font-light leading-[1.1]"
+            speed={1.2}
+            stagger={0.06}
+            delay={0.15}
+          >
+            <span className="block" data-line>Notes from the studio floor —</span>
+            <span className="block" data-line>
+              <em className="italic text-brass">observed, not drafted</em>.
+            </span>
+          </TextReveal>
+        </Reveal>
 
         {/* editorial rows, not cards */}
         <div className="mt-14 md:mt-20">
@@ -83,18 +79,16 @@ export default function FieldNotes() {
           })}
         </div>
 
-        <Reveal as="div" y={30} duration={1} start="top 95%">
-          <div className="mt-10 md:mt-14">
-            <Link
-              href="/journal"
-              className="group inline-flex items-center gap-4 text-[11px] uppercase tracking-luxe text-ink/80 transition-colors hover:text-ink"
-            >
-              Read the journal
-              <span className="text-brass transition-transform duration-500 group-hover:translate-x-1">
-                &#8594;
-              </span>
-            </Link>
-          </div>
+        <Reveal className="mt-10 md:mt-14" y={30} duration={1} start="top 95%">
+          <Link
+            href="/journal"
+            className="group inline-flex items-center gap-4 text-[11px] uppercase tracking-luxe text-ink/80 transition-colors hover:text-ink"
+          >
+            Read the journal
+            <span className="text-brass transition-transform duration-500 group-hover:translate-x-1">
+              &#8594;
+            </span>
+          </Link>
         </Reveal>
       </div>
     </section>
