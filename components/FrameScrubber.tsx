@@ -3,7 +3,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { gsap, ScrollTrigger, debouncedRefresh, usePrefersReducedMotion } from "@/lib/animations";
 import { studio } from "@/lib/site";
-import TextReveal from "./TextReveal";
 
 const TOTAL_FRAMES = 300;
 const framePath = (i: number) =>
@@ -305,20 +304,16 @@ export default function FrameScrubber() {
           >
             {studio.tagline}
           </p>
-          <TextReveal
-            as="h1"
+          <h1
             className="font-sans text-[clamp(1.9rem,6.2vw,5.4rem)] font-light uppercase leading-[1.02] tracking-[0.02em] text-paper"
-            speed={1.2}
-            stagger={0.06}
-            delay={0.2}
           >
-            <span className="block" data-line>We don&apos;t just</span>
-            <span className="block" data-line>design spaces.</span>
-            <span className="block mt-3 text-taupe md:mt-4" data-line>We design how</span>
-            <span className="block" data-line>
+            <span className="block">We don&apos;t just</span>
+            <span className="block">design spaces.</span>
+            <span className="block mt-3 text-taupe md:mt-4">We design how</span>
+            <span className="block">
               they <em className="font-serif font-light italic text-brass">feel</em>.
             </span>
-          </TextReveal>
+          </h1>
 
           <div
             data-hero
