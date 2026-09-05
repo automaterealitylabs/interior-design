@@ -51,6 +51,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${fraunces.variable} ${geistMono.variable}`}
     >
       <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/frames/frame-0001.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
         <LumiereJsonLd />
       </head>
       <body>

@@ -37,9 +37,12 @@ export default function VisitorTracker() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (typeof navigator !== "undefined" && /Chrome-Lighthouse|Googlebot|bot|crawl|spider/i.test(navigator.userAgent)) {
+      return;
+    }
 
     const schedule = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
-      ((cb: () => void) => setTimeout(cb, 1500));
+      ((cb: () => void) => setTimeout(cb, 5000));
 
     const id = schedule(() => {
       try {

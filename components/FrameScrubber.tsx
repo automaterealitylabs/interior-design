@@ -180,12 +180,6 @@ export default function FrameScrubber() {
     window.addEventListener("scroll", onUserIntent, { passive: true, once: true });
     window.addEventListener("pointerdown", onUserIntent, { passive: true, once: true });
 
-    const idleSchedule = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
-      ((cb: () => void) => setTimeout(cb, 4000));
-    const idleId = idleSchedule(() => {
-      startBackgroundPreload();
-    });
-
     // Debounced resize handler — only place we re-measure canvas dimensions
     let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
@@ -206,9 +200,6 @@ export default function FrameScrubber() {
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
       }
-      const cancelIdle = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
-        ((id: number) => clearTimeout(id));
-      cancelIdle(idleId as number);
     };
   }, [loadFrame, drawFrame, measureCanvas]);
 

@@ -4,25 +4,14 @@ import Story from "@/components/Story";
 import TrustBar from "@/components/TrustBar";
 import SignatureWorks from "@/components/SignatureWorks";
 
-const RoomsWeCraft = dynamic(() => import("@/components/RoomsWeCraft"), {
-  ssr: true,
-});
-const TheJourney = dynamic(() => import("@/components/TheJourney"), {
-  ssr: true,
-});
-const PricingTeaser = dynamic(() => import("@/components/PricingTeaser"), {
-  ssr: true,
-});
+import RoomsWeCraft from "@/components/RoomsWeCraft";
+import TheJourney from "@/components/TheJourney";
+import PricingTeaser from "@/components/PricingTeaser";
+import FieldNotes from "@/components/FieldNotes";
+import PressRecognition from "@/components/PressRecognition";
+import BeginProject from "@/components/BeginProject";
+
 const Testimonials = dynamic(() => import("@/components/Testimonials"), {
-  ssr: true,
-});
-const FieldNotes = dynamic(() => import("@/components/FieldNotes"), {
-  ssr: true,
-});
-const PressRecognition = dynamic(() => import("@/components/PressRecognition"), {
-  ssr: true,
-});
-const BeginProject = dynamic(() => import("@/components/BeginProject"), {
   ssr: true,
 });
 
