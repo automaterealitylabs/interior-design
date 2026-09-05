@@ -19,52 +19,6 @@ type RevealProps = {
 /** Reveals its children from y-offset + fade when scrolled into view.
  *  Uses GPU compositor-accelerated CSS transitions and IntersectionObserver,
  *  completely eliminating GSAP bundle weight and main-thread JavaScript execution. */
-type RevealCallback = () => void;
-interface ObserverPoolEntry {
-  observer: IntersectionObserver;
-  callbacks: Map<Element, RevealCallback>;
-}
-const observerPool = new Map<string, ObserverPoolEntry>();
-
-function observeRevealElement(
-  el: HTMLElement,
-  rootMargin: string,
-  onIntersect: RevealCallback,
-) {
-  let entry = observerPool.get(rootMargin);
-  if (!entry) {
-    const callbacks = new Map<Element, RevealCallback>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            const cb = callbacks.get(e.target);
-            if (cb) {
-              callbacks.delete(e.target);
-              observer.unobserve(e.target);
-              cb();
-            }
-          }
-        }
-      },
-      { rootMargin },
-    );
-    entry = { observer, callbacks };
-    observerPool.set(rootMargin, entry);
-  }
-
-  entry.callbacks.set(el, onIntersect);
-  entry.observer.observe(el);
-
-  return () => {
-    const current = observerPool.get(rootMargin);
-    if (current) {
-      current.callbacks.delete(el);
-      current.observer.unobserve(el);
-    }
-  };
-}
-
 export default function Reveal({
   children,
   className,
@@ -90,19 +44,32 @@ export default function Reveal({
       rootMargin = `0px 0px -${bottomPct}% 0px`;
     }
 
-    return observeRevealElement(el, rootMargin, () => {
-      el.style.willChange = "transform, opacity";
-      el.style.transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`;
-      el.style.opacity = "1";
-      el.style.transform = "translate3d(0, 0, 0)";
-      el.addEventListener(
-        "transitionend",
-        () => {
-          el.style.willChange = "auto";
-        },
-        { once: true },
-      );
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          observer.unobserve(el);
+          el.style.willChange = "transform, opacity";
+          el.style.transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`;
+          el.style.opacity = "1";
+          el.style.transform = "translate3d(0, 0, 0)";
+          el.addEventListener(
+            "transitionend",
+            () => {
+              el.style.willChange = "auto";
+            },
+            { once: true },
+          );
+        }
+      },
+      { rootMargin },
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
   }, [reduced, delay, y, start, duration]);
 
   const existingStyle = (rest.style as React.CSSProperties) || {};

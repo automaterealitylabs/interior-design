@@ -27,38 +27,6 @@ type TextRevealProps = {
  * Lines are revealed with GPU-accelerated CSS transitions on IntersectionObserver.
  * Completely eliminates GSAP script evaluation and bundle weight.
  */
-type TextRevealCallback = () => void;
-let textObserver: IntersectionObserver | null = null;
-const textCallbacks = new Map<Element, TextRevealCallback>();
-
-function observeTextElement(el: HTMLElement, onIntersect: TextRevealCallback) {
-  if (!textObserver) {
-    textObserver = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            const cb = textCallbacks.get(e.target);
-            if (cb) {
-              textCallbacks.delete(e.target);
-              textObserver?.unobserve(e.target);
-              cb();
-            }
-          }
-        }
-      },
-      { rootMargin: "120px 0px 0px 0px" },
-    );
-  }
-
-  textCallbacks.set(el, onIntersect);
-  textObserver.observe(el);
-
-  return () => {
-    textCallbacks.delete(el);
-    textObserver?.unobserve(el);
-  };
-}
-
 export default function TextReveal({
   children,
   className,
@@ -75,23 +43,34 @@ export default function TextReveal({
     if (!el || reduced) return;
 
     const duration = 1 / speed;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          observer.disconnect();
+          const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
+          lines.forEach((line, idx) => {
+            const lineDelay = delay + idx * stagger;
+            line.style.willChange = "transform";
+            line.style.transition = `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${lineDelay}s`;
+            line.style.transform = "translate3d(0, 0, 0)";
+            line.addEventListener(
+              "transitionend",
+              () => {
+                line.style.willChange = "auto";
+              },
+              { once: true },
+            );
+          });
+        }
+      },
+      { rootMargin: "120px 0px 0px 0px" },
+    );
 
-    return observeTextElement(el, () => {
-      const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
-      lines.forEach((line, idx) => {
-        const lineDelay = delay + idx * stagger;
-        line.style.willChange = "transform";
-        line.style.transition = `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${lineDelay}s`;
-        line.style.transform = "translate3d(0, 0, 0)";
-        line.addEventListener(
-          "transitionend",
-          () => {
-            line.style.willChange = "auto";
-          },
-          { once: true },
-        );
-      });
-    });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
   }, [reduced, speed, stagger, delay]);
 
   return (
