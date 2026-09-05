@@ -26,7 +26,12 @@ try {
 const nextConfig: NextConfig = {
   experimental: {
     inlineCss: true,
+    optimizePackageImports: ["lucide-react", "gsap", "lenis"],
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
+  },
+  productionBrowserSourceMaps: false,
 };
 
 export default nextConfig;
