@@ -48,27 +48,37 @@ export default function MaskedReveal({
       return;
     }
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        inner,
-        { yPercent: 100, scale },
-        {
-          yPercent: 0,
-          scale: 1,
-          duration,
-          delay,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: start ?? "top 98%",
-            toggleActions: "play none none none",
-            invalidateOnRefresh: true,
-          },
-        },
-      );
-    }, el);
+    gsap.set(inner, { yPercent: 100, scale });
 
-    return () => ctx.revert();
+    let rootMargin = "0px 0px -15% 0px";
+    const match = start.match(/top\s+(\d+)%/);
+    if (match) {
+      const bottomPct = Math.max(0, 100 - parseInt(match[1], 10));
+      rootMargin = `0px 0px -${bottomPct}% 0px`;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          observer.unobserve(el);
+          gsap.to(inner, {
+            yPercent: 0,
+            scale: 1,
+            duration,
+            delay,
+            ease: "power3.out",
+          });
+        }
+      },
+      { rootMargin },
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
   }, [reduced, duration, delay, start, scale]);
 
   return (

@@ -43,10 +43,9 @@ export default function Navbar() {
       return;
     }
 
-    const rect = target.getBoundingClientRect();
-    const navRect = navEl.getBoundingClientRect();
-    const x = rect.left - navRect.left;
-    const w = rect.width;
+    // Direct offset geometry relative to parent navEl avoids getBoundingClientRect forced reflows
+    const x = target.offsetLeft;
+    const w = target.offsetWidth;
 
     if (instant) {
       indicator.style.transform = `translateX(${x}px)`;
@@ -93,36 +92,31 @@ export default function Navbar() {
       indicator.style.opacity = "0";
     }
 
-    // On homepage, track on-page sections if present
+    // On homepage, track on-page sections via IntersectionObserver instead of registering ScrollTriggers
     if (pathname === "/") {
-      const ctx = gsap.context(() => {
-        nav.forEach((item, idx) => {
-          const id = item.href.replace(/^\//, "");
-          const el = document.getElementById(id);
-          if (el) {
-            ScrollTrigger.create({
-              trigger: el,
-              start: "top center",
-              end: "bottom center",
-              onEnter: () => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              const idx = nav.findIndex((item) => item.href.replace(/^\//, "") === id);
+              if (idx !== -1) {
                 const target = navEl.querySelector(`[data-nav-idx="${idx}"]`) as HTMLElement;
-                positionIndicator(target);
-              },
-              onEnterBack: () => {
-                const target = navEl.querySelector(`[data-nav-idx="${idx}"]`) as HTMLElement;
-                positionIndicator(target);
-              },
-              onLeaveBack: () => {
-                if (window.scrollY < 300) {
-                  indicator.style.opacity = "0";
-                }
-              },
-            });
+                if (target) positionIndicator(target);
+              }
+            }
           }
-        });
+        },
+        { rootMargin: "-30% 0px -40% 0px" },
+      );
+
+      nav.forEach((item) => {
+        const id = item.href.replace(/^\//, "");
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
       });
 
-      return () => ctx.revert();
+      return () => observer.disconnect();
     }
 
     // Window resize handler to reposition indicator

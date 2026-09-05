@@ -21,19 +21,19 @@ export default function FrameScrubber() {
 
   // Cached canvas dimensions — eliminates per-tick clientWidth/clientHeight reads
   const canvasSizeRef = useRef({ w: 0, h: 0, dpr: 1 });
+  const drawFrameRef = useRef<(index: number) => void>(() => {});
 
   const measureCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvasSizeRef.current = {
-      w: canvas.clientWidth,
-      h: canvas.clientHeight,
-      dpr,
-    };
+    // Canvas is full screen (h-svh w-full); reading viewport dimensions avoids forced reflows
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvasSizeRef.current = { w, h, dpr };
     // Resize the backing buffer to match
-    const bufW = canvasSizeRef.current.w * dpr;
-    const bufH = canvasSizeRef.current.h * dpr;
+    const bufW = Math.round(w * dpr);
+    const bufH = Math.round(h * dpr);
     if (canvas.width !== bufW || canvas.height !== bufH) {
       canvas.width = bufW;
       canvas.height = bufH;
@@ -52,7 +52,7 @@ export default function FrameScrubber() {
         currentFrameRef.current === index ||
         (index === 0 && currentFrameRef.current === 0)
       ) {
-        drawFrame(currentFrameRef.current);
+        drawFrameRef.current(currentFrameRef.current);
       }
     };
     images[index] = img;
@@ -128,6 +128,9 @@ export default function FrameScrubber() {
     ctx.restore();
   }, [loadFrame]);
 
+  // Keep drawFrameRef synced with latest drawFrame callback
+  drawFrameRef.current = drawFrame;
+
   // Intelligent tiered background preloader
   useEffect(() => {
     let cancelled = false;
@@ -172,12 +175,11 @@ export default function FrameScrubber() {
 
     const streamTimeout = setTimeout(streamNextBatch, 400);
 
-    // Initial frame 0 render check
+    // Initial frame 0 render check (runway has fixed CSS height; no layout refresh needed)
     const checkInitialFrame = () => {
       const img0 = imagesRef.current[0];
       if (img0 && img0.complete && img0.naturalWidth > 0) {
         drawFrame(0);
-        debouncedRefresh();
       } else {
         requestAnimationFrame(checkInitialFrame);
       }
