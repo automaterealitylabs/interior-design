@@ -98,7 +98,7 @@ export default async function PricingPage({
                       >
                         <span className="font-serif text-xl block">{pkg.name}</span>
                         <span className="font-mono text-[11px] text-brass block mt-1">
-                          From {pkg.priceStarting} / sq.ft
+                          From <span className="font-currency select-none">₹</span>{pkg.priceStarting.replace(/^₹/, "")} / sq.ft
                         </span>
                       </th>
                     ))}

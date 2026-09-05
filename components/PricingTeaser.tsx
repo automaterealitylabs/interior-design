@@ -83,11 +83,14 @@ export default function PricingTeaser() {
                   <span className="font-mono text-[10px] uppercase tracking-luxe text-taupe block">
                     Starting from
                   </span>
-                  <div className="mt-1 flex items-baseline gap-2">
-                    <span className="font-serif text-3xl font-normal text-ink font-currency">
-                      {pkg.priceStarting}
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="font-currency text-2xl font-normal text-ink/80 select-none" aria-hidden="true">
+                      ₹
                     </span>
-                    <span className="font-mono text-[11px] text-taupe">
+                    <span className="font-serif text-3xl font-normal text-ink">
+                      {pkg.priceStarting.replace(/^₹/, "")}
+                    </span>
+                    <span className="font-mono text-[11px] text-taupe ml-1">
                       {pkg.priceUnit}
                     </span>
                   </div>

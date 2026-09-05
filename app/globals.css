@@ -74,6 +74,10 @@
 }
 
 @layer utilities {
+  .font-currency {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
   .tracking-luxe {
     letter-spacing: 0.24em;
   }
