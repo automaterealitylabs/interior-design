@@ -37,17 +37,10 @@ export default function MaskedReveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || reduced) return;
 
     const inner = el.firstElementChild as HTMLElement | null;
     if (!inner) return;
-
-    if (reduced) {
-      inner.style.transform = "none";
-      return;
-    }
-
-    inner.style.transform = `translate3d(0, 100%, 0) scale(${scale})`;
 
     let rootMargin = "0px 0px -15% 0px";
     const match = start.match(/top\s+(\d+)%/);
@@ -86,9 +79,17 @@ export default function MaskedReveal({
   return (
     <Tag
       ref={ref}
+      data-masked-reveal=""
       className={`overflow-hidden ${className ?? ""}`}
     >
-      {innerClassName ? <div className={innerClassName}>{children}</div> : children}
+      <div
+        className={innerClassName}
+        style={{
+          transform: reduced ? "none" : `translate3d(0, 100%, 0) scale(${scale})`,
+        }}
+      >
+        {children}
+      </div>
     </Tag>
   );
 }

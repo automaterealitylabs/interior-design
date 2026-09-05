@@ -40,28 +40,14 @@ export default function TextReveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-
-    const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
-    if (lines.length === 0) return;
-
-    if (reduced) {
-      // Show text immediately for reduced motion users
-      lines.forEach((line) => {
-        line.style.transform = "none";
-      });
-      return;
-    }
-
-    lines.forEach((line) => {
-      line.style.transform = "translate3d(0, 105%, 0)";
-    });
+    if (!el || reduced) return;
 
     const duration = 1 / speed;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           observer.disconnect();
+          const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
           lines.forEach((line, idx) => {
             const lineDelay = delay + idx * stagger;
             line.style.willChange = "transform";
@@ -88,7 +74,7 @@ export default function TextReveal({
   }, [reduced, speed, stagger, delay]);
 
   return (
-    <Tag ref={ref} className={className}>
+    <Tag ref={ref} data-text-reveal="" className={className}>
       {children}
     </Tag>
   );

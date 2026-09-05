@@ -26,18 +26,12 @@ export default function Navbar() {
     }
 
     let cachedMax = 0;
-    const measureMax = () => {
-      cachedMax = document.documentElement.scrollHeight - window.innerHeight;
-    };
-
-    // Defer measurement to idle to completely avoid layout thrashing during initial hydration
-    const idleSchedule =
-      (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
-      ((cb: () => void) => setTimeout(cb, 1200));
-    const idleId = idleSchedule(() => measureMax());
-
     let ticking = false;
+
     const updateProgress = () => {
+      if (cachedMax <= 0) {
+        cachedMax = document.documentElement.scrollHeight - window.innerHeight;
+      }
       if (cachedMax > 0) {
         const progress = Math.min(1, Math.max(0, window.scrollY / cachedMax));
         bar.style.transform = `scaleX(${progress})`;
@@ -52,16 +46,17 @@ export default function Navbar() {
       }
     };
 
+    const onResize = () => {
+      // Invalidate cache on resize without querying geometry synchronously
+      cachedMax = 0;
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", measureMax, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", measureMax);
-      const cancelIdle =
-        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
-        ((id: number) => clearTimeout(id));
-      cancelIdle(idleId as number);
+      window.removeEventListener("resize", onResize);
     };
   }, [reduced]);
 

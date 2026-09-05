@@ -150,11 +150,13 @@ export default function FrameScrubber() {
     let cancelled = false;
     imagesRef.current = new Array(TOTAL_FRAMES).fill(null);
 
-    // Initial canvas measurement
-    measureCanvas();
-
-    // Tier 1: Immediately load frame 0 for instant visual paint
-    loadFrame(0);
+    // Initial canvas measurement deferred via rAF to avoid layout thrashing during mount
+    requestAnimationFrame(() => {
+      if (!cancelled) {
+        measureCanvas();
+        loadFrame(0);
+      }
+    });
 
     // Tier 2: Small buffer (1-20) loaded gently with staggered timeouts on scroll or idle
     let backgroundPreloadStarted = false;
@@ -225,53 +227,40 @@ export default function FrameScrubber() {
         const { gsap } = await import("@/lib/animations");
         if (cancelled) return;
 
-        const frameTracker = { frame: 0 };
-
         ctx = gsap.context(() => {
-          // Smooth 0 -> 299 scroll scrub
-          gsap.to(frameTracker, {
-            frame: TOTAL_FRAMES - 1,
-            ease: "none",
+          // Unified timeline bound to a SINGLE ScrollTrigger
+          const tl = gsap.timeline({
             scrollTrigger: {
               trigger: runway,
               start: "top top",
               end: "bottom bottom",
               scrub: 0.12, // Butter-smooth interpolation
-              onUpdate: () => {
-                const target = Math.round(frameTracker.frame);
+              onUpdate: (self) => {
+                const target = Math.round(self.progress * (TOTAL_FRAMES - 1));
                 requestDraw(target);
               },
             },
           });
 
           // Subtle scale breathing
-          gsap.fromTo(
+          tl.fromTo(
             canvas,
             { scale: 1.05 },
-            {
-              scale: 1,
-              ease: "none",
-              scrollTrigger: {
-                trigger: runway,
-                start: "top top",
-                end: "bottom bottom",
-                scrub: true,
-              },
-            },
+            { scale: 1, ease: "none", duration: 1 },
+            0,
           );
 
-          // Hero copy lifts and fades as first scroll starts
-          gsap.to(copy, {
-            autoAlpha: 0,
-            yPercent: -28,
-            ease: "none",
-            scrollTrigger: {
-              trigger: runway,
-              start: "top top",
-              end: "22% top",
-              scrub: true,
+          // Hero copy lifts and fades as first scroll starts (first 22% of runway)
+          tl.to(
+            copy,
+            {
+              autoAlpha: 0,
+              yPercent: -28,
+              ease: "none",
+              duration: 0.22,
             },
-          });
+            0,
+          );
         }, runway);
       } catch {
         // Gracefully ignore dynamic animation import failure

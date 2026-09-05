@@ -34,16 +34,7 @@ export default function Reveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (reduced) {
-      el.style.opacity = "1";
-      el.style.transform = "none";
-      return;
-    }
-
-    // Set initial hidden state using only compositor-friendly properties (opacity and transform)
-    el.style.opacity = "0";
-    if (y) el.style.transform = `translate3d(0, ${y}px, 0)`;
+    if (!el || reduced) return;
 
     // Calculate rootMargin from start prop (e.g. "top 86%" -> bottom -14%)
     let rootMargin = "0px 0px -14% 0px";
@@ -81,8 +72,20 @@ export default function Reveal({
     };
   }, [reduced, delay, y, start, duration]);
 
+  const existingStyle = (rest.style as React.CSSProperties) || {};
+
   return (
-    <Tag ref={ref} className={className} {...rest}>
+    <Tag
+      ref={ref}
+      data-reveal=""
+      className={className}
+      style={{
+        opacity: reduced ? 1 : 0,
+        transform: reduced || !y ? undefined : `translate3d(0, ${y}px, 0)`,
+        ...existingStyle,
+      }}
+      {...rest}
+    >
       {children}
     </Tag>
   );

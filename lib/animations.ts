@@ -9,7 +9,7 @@ if (typeof window !== "undefined") {
   ScrollTrigger.config({
     limitCallbacks: true,
     syncInterval: 100,
-    autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+    autoRefreshEvents: "visibilitychange",
   });
 }
 

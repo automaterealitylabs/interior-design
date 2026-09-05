@@ -244,12 +244,34 @@
   }
 }
 
+/* Declarative initial states for scroll reveal animations (eliminates mount-time JS forced reflows) */
+[data-text-reveal] [data-line] {
+  transform: translate3d(0, 105%, 0);
+  will-change: transform;
+}
+
 /* The scroll runway is compressed to a single viewport under
    prefers-reduced-motion; the scrub JS is skipped too, so the hero
    becomes a static full-screen frame instead of a pinned sequence. */
 @media (prefers-reduced-motion: reduce) {
   .hero-runway {
     height: 100svh !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  [data-text-reveal] [data-line] {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  [data-masked-reveal] > div {
+    transform: none !important;
+    transition: none !important;
   }
 
   *,
