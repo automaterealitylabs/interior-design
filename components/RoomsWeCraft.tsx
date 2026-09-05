@@ -92,16 +92,18 @@ export default function RoomsWeCraft() {
           ))}
         </Reveal>
 
-        <Reveal className="mt-12 md:mt-16" y={30} duration={1} start="top 95%">
-          <Link
-            href="/services"
-            className="group btn-fill--light relative inline-flex items-center gap-4 px-6 py-3 text-[11px] uppercase tracking-luxe text-ink/80 transition-colors hover:text-ink"
-          >
-            The full scope of work
-            <span className="text-brass relative z-10 transition-transform duration-500 group-hover:translate-x-1">
-              &#8594;
-            </span>
-          </Link>
+        <Reveal
+          as={Link}
+          href="/services"
+          className="group btn-fill--light relative mt-12 inline-flex items-center gap-4 px-6 py-3 text-[11px] uppercase tracking-luxe text-ink/80 transition-colors hover:text-ink md:mt-16"
+          y={30}
+          duration={1}
+          start="top 95%"
+        >
+          The full scope of work
+          <span className="text-brass relative z-10 transition-transform duration-500 group-hover:translate-x-1">
+            &#8594;
+          </span>
         </Reveal>
       </div>
     </section>

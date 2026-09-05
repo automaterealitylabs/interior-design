@@ -73,25 +73,9 @@ export default function TextReveal({
     return () => ctx.revert();
   }, [reduced, speed, stagger, delay, ease]);
 
-  // Server-render masks: wrap each [data-line] child in an overflow-hidden container.
-  // CSS in globals.css hides [data-line] via translateY(105%) until GSAP animates.
-  const maskedChildren = Children.map(children, (child) => {
-    if (
-      isValidElement(child) &&
-      (child.props as Record<string, unknown>)["data-line"] !== undefined
-    ) {
-      return (
-        <span className="text-reveal-mask">
-          {child}
-        </span>
-      );
-    }
-    return child;
-  });
-
   return (
     <Tag ref={ref} className={className}>
-      {maskedChildren}
+      {children}
     </Tag>
   );
 }

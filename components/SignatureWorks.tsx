@@ -48,95 +48,90 @@ export default function SignatureWorks() {
           </TextReveal>
         </Reveal>
 
-        <div className="mt-12 md:mt-20">
-          {signatureWorks.map((f, i) => {
-            const reversed = i % 2 === 1;
-            const slug = getSlug(i);
+        {signatureWorks.map((f, i) => {
+          const reversed = i % 2 === 1;
+          const slug = getSlug(i);
 
-            return (
-              <Reveal
-                key={f.n}
-                as="article"
-                className="group relative grid items-center gap-10 border-t border-line-light py-16 md:grid-cols-12 md:gap-8 md:py-28"
-                y={50}
-                duration={1.2}
-                delay={i * 0.05}
-                start="top 88%"
+          return (
+            <Reveal
+              key={f.n}
+              as="article"
+              className={`group relative grid items-center gap-10 border-t border-line-light py-16 md:grid-cols-12 md:gap-8 md:py-28 ${
+                i === 0 ? "mt-12 md:mt-20" : ""
+              }`}
+              y={50}
+              duration={1.2}
+              delay={i * 0.05}
+              start="top 88%"
+            >
+              {/* framed project photo with technical drawing annotation */}
+              <Link
+                href={`/work/${slug}`}
+                className={`block focus:outline-none md:col-span-7 ${
+                  reversed ? "md:col-start-6" : "md:col-start-1"
+                }`}
               >
-                {/* framed project photo with technical drawing annotation */}
-                <div
-                  className={`md:col-span-7 ${
-                    reversed ? "md:col-start-6" : "md:col-start-1"
-                  }`}
+                <MaskedReveal
+                  className="relative border border-line-light bg-ink-2 after:pointer-events-none after:absolute after:inset-0 after:bg-gradient-to-t after:from-ink/60 after:via-transparent after:to-transparent"
+                  start="top 85%"
+                  delay={i * 0.05}
                 >
-                  <Link href={`/work/${slug}`} className="block focus:outline-none">
-                    <MaskedReveal
-                      className="border border-line-light bg-ink-2"
-                      innerClassName="relative"
-                      start="top 85%"
-                      delay={i * 0.05}
-                    >
-                      <img
-                        src={
-                          f.plate === "arch"
-                            ? "/images/projects/courtyard-house.png"
-                            : f.plate === "light"
-                            ? "/images/projects/lightwell-penthouse.png"
-                            : "/images/projects/maison-verre.png"
-                        }
-                        alt={f.title}
-                        className="h-[300px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 sm:h-[380px] lg:h-[460px]"
-                      />
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
-                    </MaskedReveal>
-                    <p className="mt-3 font-mono text-[10px] uppercase tracking-far text-stone group-hover:text-brass transition-colors">
-                      Drawing {f.plate} / 1:50 — {f.title} ↗
-                    </p>
+                  <img
+                    src={
+                      f.plate === "arch"
+                        ? "/images/projects/courtyard-house.png"
+                        : f.plate === "light"
+                        ? "/images/projects/lightwell-penthouse.png"
+                        : "/images/projects/maison-verre.png"
+                    }
+                    alt={f.title}
+                    className="h-[300px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 sm:h-[380px] lg:h-[460px]"
+                  />
+                </MaskedReveal>
+                <p className="mt-3 font-mono text-[10px] uppercase tracking-far text-stone group-hover:text-brass transition-colors">
+                  Drawing {f.plate} / 1:50 — {f.title} ↗
+                </p>
+              </Link>
+
+              {/* text */}
+              <div
+                className={`relative md:col-span-4 ${
+                  reversed ? "md:col-start-1 md:row-start-1" : "md:col-start-9"
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-16 right-0 -z-10 select-none font-mono text-[7rem] leading-none text-paper/5 md:text-[10rem]"
+                >
+                  {f.n}
+                </span>
+
+                <p className="font-mono text-[10px] uppercase tracking-luxe text-stone">
+                  {f.location} · {f.year} · {f.type}
+                </p>
+                <h3 className="mt-4 font-serif text-[clamp(1.9rem,3.4vw,3.2rem)] font-light italic leading-[1.05] text-paper transition-colors duration-500 group-hover:text-brass">
+                  <Link href={`/work/${slug}`}>
+                    {f.title}
                   </Link>
-                </div>
+                </h3>
+                <p className="mt-6 font-mono text-[11px] uppercase tracking-luxe text-brass">
+                  {f.note}
+                </p>
+                <p className="mt-5 max-w-sm text-[14px] leading-[1.8] text-stone">
+                  {f.detail}
+                </p>
 
-                {/* text */}
-                <div
-                  className={`relative md:col-span-4 ${
-                    reversed ? "md:col-start-1 md:row-start-1" : "md:col-start-9"
-                  }`}
+                <Link
+                  href={`/work/${slug}`}
+                  className="group mt-8 inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-paper/80 transition-colors hover:text-brass"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -top-16 right-0 -z-10 select-none font-mono text-[7rem] leading-none text-paper/5 md:text-[10rem]"
-                  >
-                    {f.n}
-                  </span>
-
-                  <p className="font-mono text-[10px] uppercase tracking-luxe text-stone">
-                    {f.location} · {f.year} · {f.type}
-                  </p>
-                  <h3 className="mt-4 font-serif text-[clamp(1.9rem,3.4vw,3.2rem)] font-light italic leading-[1.05] text-paper transition-colors duration-500 group-hover:text-brass">
-                    <Link href={`/work/${slug}`}>
-                      {f.title}
-                    </Link>
-                  </h3>
-                  <p className="mt-6 font-mono text-[11px] uppercase tracking-luxe text-brass">
-                    {f.note}
-                  </p>
-                  <p className="mt-5 max-w-sm text-[14px] leading-[1.8] text-stone">
-                    {f.detail}
-                  </p>
-
-                  <div className="mt-8">
-                    <Link
-                      href={`/work/${slug}`}
-                      className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-paper/80 transition-colors hover:text-brass"
-                    >
-                      <span>Explore full case study</span>
-                      <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">→</span>
-                    </Link>
-                  </div>
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
+                  <span>Explore full case study</span>
+                  <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </Link>
+              </div>
+            </Reveal>
+          );
+        })}
 
         <Reveal className="mt-6 border-t border-line-light pt-10 md:mt-10" y={30} duration={1} start="top 95%">
           <Link

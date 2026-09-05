@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { contact, nav, studio } from "@/lib/site";
+import FloatingWhatsApp from "./FloatingWhatsApp";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -100,6 +101,7 @@ export default function Footer() {
           </p>
         </div>
       </div>
+      <FloatingWhatsApp />
     </footer>
   );
 }

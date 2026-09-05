@@ -39,20 +39,18 @@ export default function BeginProject() {
 
         <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
           <div className="lg:col-span-7">
-            <Reveal className="max-w-2xl" y={40} duration={1.4} start="top 90%">
-              <TextReveal
-                as="h2"
-                className="font-serif text-[clamp(2rem,4.6vw,4.2rem)] font-light leading-[1.08] text-paper"
-                speed={1.2}
-                stagger={0.06}
-                delay={0.15}
-              >
-                <span className="block" data-line>The next room is yours. Let&apos;s</span>
-                <span className="block" data-line>
-                  <em className="italic text-brass">begin</em> it properly.
-                </span>
-              </TextReveal>
-            </Reveal>
+            <TextReveal
+              as="h2"
+              className="max-w-2xl font-serif text-[clamp(2rem,4.6vw,4.2rem)] font-light leading-[1.08] text-paper"
+              speed={1.2}
+              stagger={0.06}
+              delay={0.15}
+            >
+              <span className="block" data-line>The next room is yours. Let&apos;s</span>
+              <span className="block" data-line>
+                <em className="italic text-brass">begin</em> it properly.
+              </span>
+            </TextReveal>
 
             <Reveal as="p" className="mt-6 max-w-xl text-[14px] leading-[1.8] text-stone" y={30} duration={1.1} delay={0.15} start="top 94%">
               {begin.sub}
@@ -84,68 +82,66 @@ export default function BeginProject() {
           </div>
 
           {/* Scarcity Banner & Flagship Studio Map Card */}
-          <div className="lg:col-span-5">
-            <Reveal className="rounded-xs border border-line-light bg-paper/5 p-6 md:p-8 backdrop-blur-sm" y={30} duration={1.2} delay={0.2} start="top 90%">
-              <div className="flex items-center justify-between border-b border-line-light pb-4">
-                <span className="font-mono text-[10px] uppercase tracking-far text-brass">
-                  {scarcityNotice.note}
+          <Reveal className="lg:col-span-5 rounded-xs border border-line-light bg-paper/5 p-6 md:p-8 backdrop-blur-sm" y={30} duration={1.2} delay={0.2} start="top 90%">
+            <div className="flex items-center justify-between border-b border-line-light pb-4">
+              <span className="font-mono text-[10px] uppercase tracking-far text-brass">
+                {scarcityNotice.note}
+              </span>
+              <span className="inline-block h-2 w-2 rounded-full bg-brass animate-ping" />
+            </div>
+
+            <div className="mt-6 space-y-4 text-[13px] text-stone">
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-luxe text-paper block">
+                  Flagship Atelier
                 </span>
-                <span className="inline-block h-2 w-2 rounded-full bg-brass animate-ping" />
+                <p className="mt-1 text-paper/85 font-sans">
+                  {contact.address}
+                </p>
               </div>
 
-              <div className="mt-6 space-y-4 text-[13px] text-stone">
+              <div className="grid grid-cols-2 gap-4 border-t border-line-light/60 pt-4 font-mono text-[11px]">
                 <div>
-                  <span className="font-mono text-[10px] uppercase tracking-luxe text-paper block">
-                    Flagship Atelier
+                  <span className="text-[10px] uppercase tracking-luxe text-stone block">
+                    Direct Studio
                   </span>
-                  <p className="mt-1 text-paper/85 font-sans">
-                    {contact.address}
-                  </p>
+                  <a
+                    href={`tel:${contact.phone}`}
+                    className="mt-1 block text-paper hover:text-brass transition-colors"
+                  >
+                    {contact.phone}
+                  </a>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4 border-t border-line-light/60 pt-4 font-mono text-[11px]">
-                  <div>
-                    <span className="text-[10px] uppercase tracking-luxe text-stone block">
-                      Direct Studio
-                    </span>
-                    <a
-                      href={`tel:${contact.phone}`}
-                      className="mt-1 block text-paper hover:text-brass transition-colors"
-                    >
-                      {contact.phone}
-                    </a>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase tracking-luxe text-stone block">
-                      Direct Email
-                    </span>
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="mt-1 block text-paper hover:text-brass transition-colors truncate"
-                    >
-                      {contact.email}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <p className="font-mono text-[10px] uppercase tracking-wide text-stone">
-                    {contact.hours} • {contact.responseTime}
-                  </p>
+                <div>
+                  <span className="text-[10px] uppercase tracking-luxe text-stone block">
+                    Direct Email
+                  </span>
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="mt-1 block text-paper hover:text-brass transition-colors truncate"
+                  >
+                    {contact.email}
+                  </a>
                 </div>
               </div>
 
-              {/* Embedded Map Visual */}
-              <div className="mt-6 overflow-hidden rounded-xs border border-line-light/60 bg-ink-2">
-                <div className="relative h-32 w-full bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:16px_16px] opacity-40 flex items-center justify-center">
-                  <div className="flex items-center gap-2 rounded-full bg-ink px-3 py-1 text-paper border border-brass/40 shadow-lg">
-                    <span className="h-2 w-2 rounded-full bg-brass" />
-                    <span className="font-mono text-[10px] uppercase tracking-wider">Lumière Studio • Bandra West</span>
-                  </div>
+              <div className="pt-2">
+                <p className="font-mono text-[10px] uppercase tracking-wide text-stone">
+                  {contact.hours} • {contact.responseTime}
+                </p>
+              </div>
+            </div>
+
+            {/* Embedded Map Visual */}
+            <div className="mt-6 overflow-hidden rounded-xs border border-line-light/60 bg-ink-2">
+              <div className="relative h-32 w-full bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:16px_16px] opacity-40 flex items-center justify-center">
+                <div className="flex items-center gap-2 rounded-full bg-ink px-3 py-1 text-paper border border-brass/40 shadow-lg">
+                  <span className="h-2 w-2 rounded-full bg-brass" />
+                  <span className="font-mono text-[10px] uppercase tracking-wider">Lumière Studio • Bandra West</span>
                 </div>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

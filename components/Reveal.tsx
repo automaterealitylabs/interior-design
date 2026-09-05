@@ -13,6 +13,7 @@ type RevealProps = {
   y?: number;
   start?: string;
   duration?: number;
+  [key: string]: any;
 };
 
 /** Reveals its children from y-offset + fade when scrolled into view.
@@ -27,6 +28,7 @@ export default function Reveal({
   y = 44,
   start = "top 86%",
   duration = 1.15,
+  ...rest
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const reduced = usePrefersReducedMotion();
@@ -75,7 +77,7 @@ export default function Reveal({
   }, [reduced, delay, y, start, duration]);
 
   return (
-    <Tag ref={ref} className={className}>
+    <Tag ref={ref} className={className} {...rest}>
       {children}
     </Tag>
   );

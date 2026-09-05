@@ -146,14 +146,14 @@ export default function Navbar() {
   }
 
   return (
-    <>
+    <header className="fixed inset-x-0 top-0 z-[60] pointer-events-none">
       {/* scroll progress */}
       <div
         ref={progressRef}
-        className="fixed inset-x-0 top-0 z-[70] h-[2px] w-full origin-left scale-x-0 bg-brass will-change-transform"
+        className="fixed inset-x-0 top-0 z-[70] h-[2px] w-full origin-left scale-x-0 bg-brass will-change-transform pointer-events-none"
       />
 
-      <header className="fixed inset-x-0 top-0 z-[60] mix-blend-difference">
+      <div className="pointer-events-auto mix-blend-difference">
         <div className="flex items-center justify-between px-6 py-5 text-paper md:px-10 md:py-6">
           <Link
             href="/"
@@ -232,7 +232,7 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* mobile menu overlay */}
       <div
@@ -286,6 +286,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </>
+    </header>
   );
 }

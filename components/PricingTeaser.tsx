@@ -33,16 +33,19 @@ export default function PricingTeaser() {
             </TextReveal>
           </Reveal>
 
-          <Reveal y={20} duration={1} delay={0.2} start="top 90%">
-            <Link
-              href="/pricing"
-              className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-ink transition-colors hover:text-brass"
-            >
-              <span>Explore full cost calculator & matrix</span>
-              <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
-            </Link>
+          <Reveal
+            as={Link}
+            href="/pricing"
+            className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-ink transition-colors hover:text-brass"
+            y={20}
+            duration={1}
+            delay={0.2}
+            start="top 90%"
+          >
+            <span>Explore full cost calculator & matrix</span>
+            <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">
+              →
+            </span>
           </Reveal>
         </div>
 
@@ -83,34 +86,30 @@ export default function PricingTeaser() {
                   <span className="font-mono text-[10px] uppercase tracking-luxe text-taupe block">
                     Starting from
                   </span>
-                  <div className="mt-1 flex items-baseline gap-1">
-                    <span className="font-currency text-2xl font-normal text-ink/80 select-none" aria-hidden="true">
+                  <p className="mt-1 flex items-baseline gap-1 font-serif text-3xl font-normal text-ink">
+                    <span className="font-currency text-2xl font-normal text-ink/80 select-none mr-0.5" aria-hidden="true">
                       ₹
                     </span>
-                    <span className="font-serif text-3xl font-normal text-ink">
-                      {pkg.priceStarting.replace(/^₹/, "")}
-                    </span>
-                    <span className="font-mono text-[11px] text-taupe ml-1">
+                    {pkg.priceStarting.replace(/^₹/, "")}
+                    <span className="font-mono text-[11px] text-taupe ml-1 font-normal">
                       {pkg.priceUnit}
                     </span>
-                  </div>
+                  </p>
                 </div>
 
-                <div className="mt-8">
-                  <span className="font-mono text-[10px] uppercase tracking-luxe text-taupe block">
-                    Key Deliverables
-                  </span>
-                  <ul className="mt-4 space-y-3">
-                    {pkg.features.slice(0, 4).map((f) => (
-                      <li
-                        key={f}
-                        className="relative pl-4 text-[13px] text-ink/80 before:absolute before:left-0 before:top-0 before:text-brass before:content-['•']"
-                      >
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <span className="mt-8 font-mono text-[10px] uppercase tracking-luxe text-taupe block">
+                  Key Deliverables
+                </span>
+                <ul className="mt-4 space-y-3">
+                  {pkg.features.slice(0, 4).map((f) => (
+                    <li
+                      key={f}
+                      className="relative pl-4 text-[13px] text-ink/80 before:absolute before:left-0 before:top-0 before:text-brass before:content-['•']"
+                    >
+                      {f}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div className="mt-10 pt-6 border-t border-line">

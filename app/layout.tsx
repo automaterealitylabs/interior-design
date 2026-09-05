@@ -4,7 +4,6 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ViewTransitionWrapper from "@/components/ViewTransitionWrapper";
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import LumiereJsonLd from "@/components/LumiereJsonLd";
 import VisitorTracker from "@/components/VisitorTracker";
 import "./globals.css";
@@ -51,15 +50,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${archivo.variable} ${fraunces.variable} ${geistMono.variable}`}
     >
-      <head />
+      <head>
+        <LumiereJsonLd />
+      </head>
       <body>
         <VisitorTracker />
         <SmoothScroll>
-          <LumiereJsonLd />
           <Navbar />
           <ViewTransitionWrapper>{children}</ViewTransitionWrapper>
           <Footer />
-          <FloatingWhatsApp />
         </SmoothScroll>
       </body>
     </html>
