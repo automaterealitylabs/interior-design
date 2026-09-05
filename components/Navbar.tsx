@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePrefersReducedMotion } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { nav, studio } from "@/lib/site-config";
 
 export default function Navbar() {

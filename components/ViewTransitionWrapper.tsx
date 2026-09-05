@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { debouncedRefresh } from "@/lib/animations";
 
 /**
  * Handles route change animations and refreshes GSAP ScrollTrigger on subsequent navigation.
@@ -17,7 +16,8 @@ export default function ViewTransitionWrapper({ children }: { children: React.Re
       isFirstMount.current = false;
       return;
     }
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      const { debouncedRefresh } = await import("@/lib/animations");
       debouncedRefresh();
     }, 150);
     return () => clearTimeout(timer);

@@ -13,20 +13,7 @@ if (typeof window !== "undefined") {
 }
 
 export { gsap, ScrollTrigger };
-
-/** True when the user has requested reduced motion (or until the match
- *  media result is known, which is fine — scrubbers gate on the final value). */
-export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setReduced(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-  return reduced;
-}
+export { usePrefersReducedMotion } from "./use-reduced-motion";
 
 /** Coalesces multiple ScrollTrigger.refresh() calls into one per frame.
  *  Prevents redundant forced reflows when many components mount together. */

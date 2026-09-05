@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import { contact, nav, studio } from "@/lib/site-config";
-import FloatingWhatsApp from "./FloatingWhatsApp";
+
+const FloatingWhatsApp = dynamic(() => import("./FloatingWhatsApp"), {
+  ssr: false,
+});
 
 export default function Footer() {
   const pathname = usePathname();

@@ -1,33 +1,72 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
-import { gsap, ScrollTrigger } from "@/lib/animations";
 
 /** Wraps the page in Lenis smooth scrolling and syncs with GSAP
- *  ScrollTrigger so all scroll-driven animations stay frame-accurate. */
+ *  ScrollTrigger so all scroll-driven animations stay frame-accurate.
+ *  Dynamically deferred until user scroll or idle to eliminate initial main-thread blocking. */
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      touchMultiplier: 1.5,
-      syncTouch: false,
-      infinite: false,
-    });
+    let lenis: InstanceType<typeof import("lenis")["default"]> | null = null;
+    let tickerFn: ((time: number) => void) | null = null;
+    let gsapInstance: typeof import("gsap")["default"] | null = null;
+    let cancelled = false;
 
-    /* Feed Lenis scroll positions into GSAP so ScrollTrigger picks them up. */
-    lenis.on("scroll", ScrollTrigger.update);
+    const initLenis = async () => {
+      if (cancelled || lenis) return;
+      try {
+        const [{ default: Lenis }, { gsap, ScrollTrigger }] = await Promise.all([
+          import("lenis"),
+          import("@/lib/animations"),
+        ]);
+        if (cancelled) return;
 
-    const tick = (time: number) => {
-      lenis.raf(time * 1000);
+        gsapInstance = gsap;
+        lenis = new Lenis({
+          duration: 1.15,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          touchMultiplier: 1.5,
+          syncTouch: false,
+          infinite: false,
+        });
+
+        lenis.on("scroll", ScrollTrigger.update);
+        tickerFn = (time: number) => {
+          lenis?.raf(time * 1000);
+        };
+        gsap.ticker.add(tickerFn);
+      } catch {
+        // Graceful fallback to native browser scrolling
+      }
     };
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
+
+    const onScrollIntent = () => {
+      initLenis();
+      window.removeEventListener("scroll", onScrollIntent);
+      window.removeEventListener("wheel", onScrollIntent);
+      window.removeEventListener("touchstart", onScrollIntent);
+    };
+
+    window.addEventListener("scroll", onScrollIntent, { passive: true, once: true });
+    window.addEventListener("wheel", onScrollIntent, { passive: true, once: true });
+    window.addEventListener("touchstart", onScrollIntent, { passive: true, once: true });
+
+    const idleSchedule =
+      (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
+      ((cb: () => void) => setTimeout(cb, 2000));
+    const idleId = idleSchedule(() => initLenis());
 
     return () => {
-      gsap.ticker.remove(tick);
-      lenis.destroy();
+      cancelled = true;
+      window.removeEventListener("scroll", onScrollIntent);
+      window.removeEventListener("wheel", onScrollIntent);
+      window.removeEventListener("touchstart", onScrollIntent);
+      const cancelIdle =
+        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
+        ((id: number) => clearTimeout(id));
+      cancelIdle(idleId as number);
+      if (tickerFn && gsapInstance) gsapInstance.ticker.remove(tickerFn);
+      if (lenis) lenis.destroy();
     };
   }, []);
 

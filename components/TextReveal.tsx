@@ -6,7 +6,7 @@ import {
   type ReactNode,
   type ElementType,
 } from "react";
-import { gsap, usePrefersReducedMotion } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 type TextRevealProps = {
   children: ReactNode;
@@ -24,8 +24,8 @@ type TextRevealProps = {
 
 /**
  * Server-renders each [data-line] child inside an overflow-hidden mask.
- * Lines start translated below the mask via CSS (`globals.css`) and are
- * revealed by GSAP sliding them into view.  Respects prefers-reduced-motion.
+ * Lines are revealed with GPU-accelerated CSS transitions on IntersectionObserver.
+ * Completely eliminates GSAP script evaluation and bundle weight.
  */
 export default function TextReveal({
   children,
@@ -34,7 +34,6 @@ export default function TextReveal({
   speed = 1,
   stagger = 0.08,
   delay = 0,
-  ease = "power3.out",
 }: TextRevealProps) {
   const ref = useRef<HTMLElement>(null);
   const reduced = usePrefersReducedMotion();
@@ -54,24 +53,20 @@ export default function TextReveal({
       return;
     }
 
-    let ctx: gsap.Context | null = null;
+    lines.forEach((line) => {
+      line.style.transform = "translate3d(0, 105%, 0)";
+    });
+
+    const duration = 1 / speed;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           observer.disconnect();
-          ctx = gsap.context(() => {
-            gsap.fromTo(
-              lines,
-              { yPercent: 105 },
-              {
-                yPercent: 0,
-                duration: 1 / speed,
-                ease,
-                stagger,
-                delay,
-              },
-            );
-          }, el);
+          lines.forEach((line, idx) => {
+            const lineDelay = delay + idx * stagger;
+            line.style.transition = `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${lineDelay}s`;
+            line.style.transform = "translate3d(0, 0, 0)";
+          });
         }
       },
       { rootMargin: "120px 0px 0px 0px" },
@@ -81,9 +76,8 @@ export default function TextReveal({
 
     return () => {
       observer.disconnect();
-      if (ctx) ctx.revert();
     };
-  }, [reduced, speed, stagger, delay, ease]);
+  }, [reduced, speed, stagger, delay]);
 
   return (
     <Tag ref={ref} className={className}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ElementType, type ReactNode } from "react";
-import { gsap, usePrefersReducedMotion } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 type RevealProps = {
   children: ReactNode;
@@ -17,9 +17,8 @@ type RevealProps = {
 };
 
 /** Reveals its children from y-offset + fade when scrolled into view.
- *  Uses high-performance IntersectionObserver instead of registering separate
- *  ScrollTriggers, completely eliminating layout thrashing and forced reflows.
- *  Respects prefers-reduced-motion (renders fully visible, no tween). */
+ *  Uses GPU compositor-accelerated CSS transitions and IntersectionObserver,
+ *  completely eliminating GSAP bundle weight and main-thread JavaScript execution. */
 export default function Reveal({
   children,
   className,
@@ -37,7 +36,9 @@ export default function Reveal({
     const el = ref.current;
     if (!el) return;
     if (reduced) {
-      gsap.set(el, { clearProps: "all" });
+      el.style.opacity = "1";
+      el.style.visibility = "visible";
+      el.style.transform = "none";
       return;
     }
 
@@ -59,13 +60,10 @@ export default function Reveal({
         const [entry] = entries;
         if (entry.isIntersecting) {
           observer.unobserve(el);
-          gsap.to(el, {
-            autoAlpha: 1,
-            y: 0,
-            duration,
-            delay,
-            ease: "power3.out",
-          });
+          el.style.transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`;
+          el.style.opacity = "1";
+          el.style.visibility = "visible";
+          el.style.transform = "translate3d(0, 0, 0)";
         }
       },
       { rootMargin },

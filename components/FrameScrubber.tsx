@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { gsap, usePrefersReducedMotion } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { studio } from "@/lib/site-config";
 
 const TOTAL_FRAMES = 300;
@@ -236,67 +236,84 @@ export default function FrameScrubber() {
     const copy = copyRef.current;
     if (!runway || !canvas || !copy || reduced) return;
 
-    const frameTracker = { frame: 0 };
+    let ctx: { revert: () => void } | null = null;
+    let cancelled = false;
 
-    const ctx = gsap.context(() => {
-      // Smooth 0 -> 299 scroll scrub
-      gsap.to(frameTracker, {
-        frame: TOTAL_FRAMES - 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: runway,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.12, // Butter-smooth interpolation
-          onUpdate: () => {
-            const target = Math.round(frameTracker.frame);
-            drawFrame(target);
-          },
-        },
-      });
+    const initTimeline = async () => {
+      try {
+        const { gsap } = await import("@/lib/animations");
+        if (cancelled) return;
 
-      // Subtle scale breathing
-      gsap.fromTo(
-        canvas,
-        { scale: 1.05 },
-        {
-          scale: 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: runway,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: true,
-          },
-        },
-      );
+        const frameTracker = { frame: 0 };
 
-      // Hero copy lifts and fades as first scroll starts
-      gsap.to(copy, {
-        autoAlpha: 0,
-        yPercent: -28,
-        ease: "none",
-        scrollTrigger: {
-          trigger: runway,
-          start: "top top",
-          end: "22% top",
-          scrub: true,
-        },
-      });
+        ctx = gsap.context(() => {
+          // Smooth 0 -> 299 scroll scrub
+          gsap.to(frameTracker, {
+            frame: TOTAL_FRAMES - 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: runway,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: 0.12, // Butter-smooth interpolation
+              onUpdate: () => {
+                const target = Math.round(frameTracker.frame);
+                drawFrame(target);
+              },
+            },
+          });
 
-      // Hero text entrance animation
-      gsap.from(copy.querySelectorAll<HTMLElement>("[data-hero]"), {
-        autoAlpha: 0,
-        y: 24,
-        duration: 1.2,
-        ease: "power3.out",
-        stagger: 0.08,
-        delay: 0.1,
-        clearProps: "all",
-      });
-    }, runway);
+          // Subtle scale breathing
+          gsap.fromTo(
+            canvas,
+            { scale: 1.05 },
+            {
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: runway,
+                start: "top top",
+                end: "bottom bottom",
+                scrub: true,
+              },
+            },
+          );
 
-    return () => ctx.revert();
+          // Hero copy lifts and fades as first scroll starts
+          gsap.to(copy, {
+            autoAlpha: 0,
+            yPercent: -28,
+            ease: "none",
+            scrollTrigger: {
+              trigger: runway,
+              start: "top top",
+              end: "22% top",
+              scrub: true,
+            },
+          });
+
+          // Hero text entrance animation
+          gsap.from(copy.querySelectorAll<HTMLElement>("[data-hero]"), {
+            autoAlpha: 0,
+            y: 24,
+            duration: 1.2,
+            ease: "power3.out",
+            stagger: 0.08,
+            delay: 0.1,
+            clearProps: "all",
+          });
+        }, runway);
+      } catch {
+        // Gracefully ignore dynamic animation import failure
+      }
+    };
+
+    initTimeline();
+
+    return () => {
+      cancelled = true;
+      if (ctx) ctx.revert();
+    };
   }, [reduced, drawFrame]);
 
   return (

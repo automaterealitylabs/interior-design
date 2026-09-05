@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ElementType, type ReactNode } from "react";
-import { gsap, usePrefersReducedMotion } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 type MaskedRevealProps = {
   children: ReactNode;
@@ -43,8 +43,7 @@ export default function MaskedReveal({
     if (!inner) return;
 
     if (reduced) {
-      gsap.set(el, { clearProps: "all" });
-      gsap.set(inner, { clearProps: "all" });
+      inner.style.transform = "none";
       return;
     }
 
@@ -62,13 +61,8 @@ export default function MaskedReveal({
         const [entry] = entries;
         if (entry.isIntersecting) {
           observer.unobserve(el);
-          gsap.to(inner, {
-            yPercent: 0,
-            scale: 1,
-            duration,
-            delay,
-            ease: "power3.out",
-          });
+          inner.style.transition = `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`;
+          inner.style.transform = "translate3d(0, 0, 0) scale(1)";
         }
       },
       { rootMargin },
