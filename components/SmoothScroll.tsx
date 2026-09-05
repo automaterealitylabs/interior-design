@@ -51,20 +51,11 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     window.addEventListener("wheel", onScrollIntent, { passive: true, once: true });
     window.addEventListener("touchstart", onScrollIntent, { passive: true, once: true });
 
-    const idleSchedule =
-      (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
-      ((cb: () => void) => setTimeout(cb, 2000));
-    const idleId = idleSchedule(() => initLenis());
-
     return () => {
       cancelled = true;
       window.removeEventListener("scroll", onScrollIntent);
       window.removeEventListener("wheel", onScrollIntent);
       window.removeEventListener("touchstart", onScrollIntent);
-      const cancelIdle =
-        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
-        ((id: number) => clearTimeout(id));
-      cancelIdle(idleId as number);
       if (tickerFn && gsapInstance) gsapInstance.ticker.remove(tickerFn);
       if (lenis) lenis.destroy();
     };

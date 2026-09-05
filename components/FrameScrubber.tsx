@@ -181,7 +181,7 @@ export default function FrameScrubber() {
     window.addEventListener("pointerdown", onUserIntent, { passive: true, once: true });
 
     const idleSchedule = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
-      ((cb: () => void) => setTimeout(cb, 2500));
+      ((cb: () => void) => setTimeout(cb, 4000));
     const idleId = idleSchedule(() => {
       startBackgroundPreload();
     });
@@ -250,17 +250,19 @@ export default function FrameScrubber() {
             0,
           );
 
-          // Hero copy lifts and fades as first scroll starts (first 22% of runway)
-          tl.to(
-            copy,
-            {
-              autoAlpha: 0,
-              yPercent: -28,
-              ease: "none",
-              duration: 0.22,
-            },
-            0,
-          );
+          // Hero copy lifts and fades: if CSS scroll-timeline is unsupported, GSAP falls back gracefully
+          if (!(typeof CSS !== "undefined" && CSS.supports && CSS.supports("animation-timeline", "scroll()"))) {
+            tl.to(
+              copy,
+              {
+                autoAlpha: 0,
+                yPercent: -28,
+                ease: "none",
+                duration: 0.22,
+              },
+              0,
+            );
+          }
         }, runway);
       } catch {
         // Gracefully ignore dynamic animation import failure
@@ -287,21 +289,12 @@ export default function FrameScrubber() {
     window.addEventListener("touchstart", onUserIntent, { passive: true, once: true });
     window.addEventListener("pointerdown", onUserIntent, { passive: true, once: true });
 
-    const idleSchedule =
-      (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
-      ((cb: () => void) => setTimeout(cb, 2200));
-    const idleId = idleSchedule(() => startTimeline());
-
     return () => {
       cancelled = true;
       window.removeEventListener("scroll", onUserIntent);
       window.removeEventListener("wheel", onUserIntent);
       window.removeEventListener("touchstart", onUserIntent);
       window.removeEventListener("pointerdown", onUserIntent);
-      const cancelIdle =
-        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
-        ((id: number) => clearTimeout(id));
-      cancelIdle(idleId as number);
       if (ctx) ctx.revert();
     };
   }, [reduced, drawFrame]);
@@ -326,7 +319,7 @@ export default function FrameScrubber() {
         {/* Hero Copy Overlay */}
         <div
           ref={copyRef}
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center text-paper"
+          className="hero-copy-fade absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center text-paper will-change-transform"
         >
           <p
             className="mb-7 text-[10px] uppercase tracking-far text-paper/70 md:mb-9 md:text-[11px]"

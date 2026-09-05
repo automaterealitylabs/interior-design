@@ -226,7 +226,7 @@
   }
 }
 
-/* Compositor-driven native scroll progress bar (0 JS, 0 forced reflows) */
+/* Compositor-driven native scroll animations (0 JS, 0 forced reflows) */
 @supports (animation-timeline: scroll()) {
   .nav-scroll-progress {
     animation: navScrollProgress linear both;
@@ -240,6 +240,20 @@
     }
     to {
       transform: scaleX(1);
+    }
+  }
+
+  .hero-copy-fade {
+    animation: heroCopyFade linear both;
+    animation-timeline: scroll();
+    animation-range: 0vh 120vh;
+  }
+
+  @keyframes heroCopyFade {
+    to {
+      opacity: 0;
+      transform: translateY(-28%);
+      visibility: hidden;
     }
   }
 }
