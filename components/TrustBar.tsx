@@ -50,9 +50,9 @@ export default function TrustBar() {
                   />
                 </svg>
               </div>
-              <h4 className="mt-4 font-serif text-lg font-normal text-ink">
+              <h3 className="mt-4 font-serif text-lg font-normal text-ink">
                 {g.title}
-              </h4>
+              </h3>
               <p className="mt-2 text-[12px] leading-relaxed text-taupe font-sans">
                 {g.desc}
               </p>
