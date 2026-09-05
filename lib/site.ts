@@ -41,7 +41,7 @@ export const services = [
     desc: "The heart of the home — designed for conversation, comfort and the quiet pleasure of a room that just works.",
     features: ["Furniture layout", "Lighting design", "Custom joinery", "Soft furnishing"],
     startingPrice: "₹4,50,000",
-    image: "/images/rooms/living-room.png",
+    image: "/images/rooms/living-room.webp",
   },
   {
     n: "02",
@@ -50,7 +50,7 @@ export const services = [
     desc: "Workflows, storage and finishes choreographed around how you cook — not how a catalogue photographs.",
     features: ["Layout planning", "Countertop selection", "Hardware", "Appliance integration"],
     startingPrice: "₹6,00,000",
-    image: "/images/rooms/kitchen.png",
+    image: "/images/rooms/kitchen.webp",
   },
   {
     n: "03",
@@ -59,7 +59,7 @@ export const services = [
     desc: "A room that holds rest. Calm proportion, warm materials and storage that disappears into the architecture.",
     features: ["Wardrobe design", "Lighting layers", "Material palette", "Acoustic comfort"],
     startingPrice: "₹3,80,000",
-    image: "/images/rooms/bedroom.png",
+    image: "/images/rooms/bedroom.webp",
   },
   {
     n: "04",
@@ -68,7 +68,7 @@ export const services = [
     desc: "Where the table is the anchor — proportioned to the room, lit to flatter, built to last.",
     features: ["Table selection", "Seating design", "Ambient lighting", "Wall treatments"],
     startingPrice: "₹3,20,000",
-    image: "/images/rooms/dining.png",
+    image: "/images/rooms/dining.webp",
   },
   {
     n: "05",
@@ -77,7 +77,7 @@ export const services = [
     desc: "A workspace that sharpens focus without sacrificing the feeling of home.",
     features: ["Ergonomic planning", "Storage solutions", "Task lighting", "Acoustic treatment"],
     startingPrice: "₹2,50,000",
-    image: "/images/rooms/study.png",
+    image: "/images/rooms/study.webp",
   },
   {
     n: "06",
@@ -86,7 +86,7 @@ export const services = [
     desc: "A single vision of luxury — stone, steam and restorative calm in every material decision.",
     features: ["Stone selection", "Fixture design", "Wet room planning", "Lighting atmosphere"],
     startingPrice: "₹2,80,000",
-    image: "/images/rooms/bath.png",
+    image: "/images/rooms/bath.webp",
   },
   {
     n: "07",
@@ -95,7 +95,7 @@ export const services = [
     desc: "The first room is a threshold — it sets the register for the rest of the home.",
     features: ["Threshold design", "Console & art", "Lighting", "Architectural transition"],
     startingPrice: "₹1,90,000",
-    image: "/images/rooms/entry.png",
+    image: "/images/rooms/entry.webp",
   },
   {
     n: "08",
@@ -104,7 +104,7 @@ export const services = [
     desc: "A single vision, carried through every room — consistent material language, unified flow, one accountable team.",
     features: ["Complete design", "Material coordination", "Project management", "Turnkey delivery"],
     startingPrice: "₹22,00,000",
-    image: "/images/signature-living-room.png",
+    image: "/images/signature-living-room.webp",
   },
 ];
 
@@ -2007,12 +2007,12 @@ export const fieldNotes = [
 ];
 
 export const press = [
-  { year: "2026", publication: "Architectural Digest", kind: "Featured", note: "The Courtyard House in the March international edition.", image: "/images/projects/courtyard-house.png", link: "https://www.architecturaldigest.in" },
-  { year: "2025", publication: "Dezeen", kind: "Featured", note: "Lightwell Penthouse selected for the residential series.", image: "/images/projects/lightwell-penthouse.png", link: "https://www.dezeen.com" },
-  { year: "2025", publication: "Frame Awards", kind: "Shortlisted", note: "Hospitality interior of the year.", image: "/images/projects/hotel-ombelle.png", link: "https://www.frameweb.com" },
-  { year: "2024", publication: "Dwell", kind: "Cover", note: "October issue, photographed at dusk.", image: "/images/projects/villa-meridian.png", link: "https://www.dwell.com" },
-  { year: "2024", publication: "The World of Interiors", kind: "Reviewed", note: "A profile of the Lyon gallery project.", image: "/images/projects/maison-verre.png", link: "https://www.worldofinteriors.com" },
-  { year: "2023", publication: "Elle Decor", kind: "Best of Year", note: "Honouree, residential architecture category.", image: "/images/projects/loft-at-atlas.png", link: "https://elledecor.in" },
+  { year: "2026", publication: "Architectural Digest", kind: "Featured", note: "The Courtyard House in the March international edition.", image: "/images/projects/courtyard-house.webp", link: "https://www.architecturaldigest.in" },
+  { year: "2025", publication: "Dezeen", kind: "Featured", note: "Lightwell Penthouse selected for the residential series.", image: "/images/projects/lightwell-penthouse.webp", link: "https://www.dezeen.com" },
+  { year: "2025", publication: "Frame Awards", kind: "Shortlisted", note: "Hospitality interior of the year.", image: "/images/projects/hotel-ombelle.webp", link: "https://www.frameweb.com" },
+  { year: "2024", publication: "Dwell", kind: "Cover", note: "October issue, photographed at dusk.", image: "/images/projects/villa-meridian.webp", link: "https://www.dwell.com" },
+  { year: "2024", publication: "The World of Interiors", kind: "Reviewed", note: "A profile of the Lyon gallery project.", image: "/images/projects/maison-verre.webp", link: "https://www.worldofinteriors.com" },
+  { year: "2023", publication: "Elle Decor", kind: "Best of Year", note: "Honouree, residential architecture category.", image: "/images/projects/loft-at-atlas.webp", link: "https://elledecor.in" },
 ];
 
 export const begin = {

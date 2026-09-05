@@ -77,12 +77,14 @@ export default function SignatureWorks() {
                   <img
                     src={
                       f.plate === "arch"
-                        ? "/images/projects/courtyard-house.png"
+                        ? "/images/projects/courtyard-house.webp"
                         : f.plate === "light"
-                        ? "/images/projects/lightwell-penthouse.png"
-                        : "/images/projects/maison-verre.png"
+                        ? "/images/projects/lightwell-penthouse.webp"
+                        : "/images/projects/maison-verre.webp"
                     }
                     alt={f.title}
+                    loading="lazy"
+                    decoding="async"
                     className="h-[300px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 sm:h-[380px] lg:h-[460px]"
                   />
                 </MaskedReveal>
