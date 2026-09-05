@@ -309,6 +309,8 @@ export default function FrameScrubber() {
         {/* High-Performance 60FPS Frame Canvas */}
         <canvas
           ref={canvasRef}
+          width={1920}
+          height={1080}
           className="pointer-events-none absolute inset-0 h-full w-full object-cover will-change-transform"
         />
 
