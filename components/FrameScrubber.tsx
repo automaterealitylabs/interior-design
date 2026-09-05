@@ -319,7 +319,7 @@ export default function FrameScrubber() {
         {/* Hero Copy Overlay */}
         <div
           ref={copyRef}
-          className="hero-copy-fade absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center text-paper will-change-transform"
+          className="hero-copy-fade absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center text-paper"
         >
           <p
             className="mb-7 text-[10px] uppercase tracking-far text-paper/70 md:mb-9 md:text-[11px]"
