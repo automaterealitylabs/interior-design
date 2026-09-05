@@ -21,6 +21,9 @@ export default function FrameScrubber() {
   // Cached canvas dimensions — eliminates per-tick clientWidth/clientHeight reads
   const canvasSizeRef = useRef({ w: 0, h: 0, dpr: 1 });
   const drawFrameRef = useRef<(index: number) => void>(() => {});
+  const lastDrawnImgRef = useRef<HTMLImageElement | null>(null);
+  const pendingFrameRef = useRef<number | null>(null);
+  const rafIdRef = useRef<number | null>(null);
 
   const measureCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -41,6 +44,7 @@ export default function FrameScrubber() {
 
   // Helper to load a single frame on-demand if not already loading
   const loadFrame = useCallback((index: number) => {
+    if (index < 0 || index >= TOTAL_FRAMES) return null;
     const images = imagesRef.current;
     if (images[index]) return images[index]!;
 
@@ -58,7 +62,7 @@ export default function FrameScrubber() {
     return img;
   }, []);
 
-  // Draws a specific frame to the canvas — reads ONLY cached dimensions (no layout)
+  // Draws a specific frame to the canvas — O(1) direct buffer render without scanning loops
   const drawFrame = useCallback((frameIndex: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -70,29 +74,25 @@ export default function FrameScrubber() {
     // Load requested frame and adjacent frames on-demand
     loadFrame(frameIndex);
     if (frameIndex + 1 < TOTAL_FRAMES) loadFrame(frameIndex + 1);
+    if (frameIndex + 2 < TOTAL_FRAMES) loadFrame(frameIndex + 2);
     if (frameIndex - 1 >= 0) loadFrame(frameIndex - 1);
 
-    // Find target image or nearest loaded frame
     const images = imagesRef.current;
-    let targetImg = images[frameIndex];
+    const targetImg = images[frameIndex];
+    const isReady = targetImg && targetImg.complete && targetImg.naturalWidth > 0;
 
-    if (!targetImg || !targetImg.complete || targetImg.naturalWidth === 0) {
-      let bestDist = Infinity;
-      for (let i = 0; i < TOTAL_FRAMES; i++) {
-        const img = images[i];
-        if (img && img.complete && img.naturalWidth > 0) {
-          const dist = Math.abs(i - frameIndex);
-          if (dist < bestDist) {
-            bestDist = dist;
-            targetImg = img;
-          }
-        }
-      }
-    }
-
-    if (!targetImg || !targetImg.complete || targetImg.naturalWidth === 0) {
+    // Use current ready target image, or fallback to the last drawn image without scanning
+    const imgToDraw = isReady ? targetImg : lastDrawnImgRef.current;
+    if (!imgToDraw || !imgToDraw.complete || imgToDraw.naturalWidth === 0) {
       return;
     }
+
+    // If target isn't ready and canvas already shows the fallback, skip redraw
+    if (!isReady && lastDrawnImgRef.current === imgToDraw) {
+      return;
+    }
+
+    lastDrawnImgRef.current = imgToDraw;
 
     // Use cached dimensions — no layout-triggering reads
     const { w: displayWidth, h: displayHeight, dpr } = canvasSizeRef.current;
@@ -102,7 +102,7 @@ export default function FrameScrubber() {
     ctx.scale(dpr, dpr);
 
     // Object-fit: cover algorithm
-    const imgRatio = targetImg.naturalWidth / targetImg.naturalHeight;
+    const imgRatio = imgToDraw.naturalWidth / imgToDraw.naturalHeight;
     const canvasRatio = displayWidth / displayHeight;
 
     let drawW: number;
@@ -123,9 +123,22 @@ export default function FrameScrubber() {
     }
 
     ctx.clearRect(0, 0, displayWidth, displayHeight);
-    ctx.drawImage(targetImg, drawX, drawY, drawW, drawH);
+    ctx.drawImage(imgToDraw, drawX, drawY, drawW, drawH);
     ctx.restore();
   }, [loadFrame]);
+
+  // Coalesce canvas draws to at most ONE draw per display frame (16.6ms)
+  const requestDraw = useCallback((target: number) => {
+    pendingFrameRef.current = target;
+    if (rafIdRef.current === null) {
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
+        if (pendingFrameRef.current !== null) {
+          drawFrame(pendingFrameRef.current);
+        }
+      });
+    }
+  }, [drawFrame]);
 
   // Keep drawFrameRef synced with latest drawFrame callback
   useEffect(() => {
@@ -140,47 +153,23 @@ export default function FrameScrubber() {
     // Initial canvas measurement
     measureCanvas();
 
-    // Tier 1: Immediately load frame 0 for instant visual paint without main-thread contention
+    // Tier 1: Immediately load frame 0 for instant visual paint
     loadFrame(0);
 
-    // Tier 2 & 3: Defer all further background frame preloading until after first scroll or idle time
+    // Tier 2: Small buffer (1-20) loaded gently with staggered timeouts on scroll or idle
     let backgroundPreloadStarted = false;
     const startBackgroundPreload = () => {
       if (backgroundPreloadStarted || cancelled) return;
       backgroundPreloadStarted = true;
 
-      // Small buffer (1-10) for initial scroll movement
-      for (let i = 1; i <= 10; i++) {
-        loadFrame(i);
+      for (let i = 1; i <= 20; i++) {
+        setTimeout(() => {
+          if (!cancelled) loadFrame(i);
+        }, i * 35);
       }
-
-      // Idle queue for remaining frames
-      const remainingFrames: number[] = [];
-      for (let i = 11; i < TOTAL_FRAMES; i += 2) {
-        remainingFrames.push(i);
-      }
-      for (let i = 12; i < TOTAL_FRAMES; i += 2) {
-        remainingFrames.push(i);
-      }
-
-      let qIdx = 0;
-      const BATCH_SIZE = 8;
-      const streamNext = () => {
-        if (cancelled || qIdx >= remainingFrames.length) return;
-        const end = Math.min(qIdx + BATCH_SIZE, remainingFrames.length);
-        for (let i = qIdx; i < end; i++) {
-          loadFrame(remainingFrames[i]);
-        }
-        qIdx = end;
-        if (qIdx < remainingFrames.length) {
-          setTimeout(streamNext, 120);
-        }
-      };
-
-      setTimeout(streamNext, 200);
     };
 
-    // Trigger preload on first scroll/touch or when idle
+    // Trigger buffer preload on first scroll/touch or idle
     const onUserIntent = () => {
       startBackgroundPreload();
       window.removeEventListener("scroll", onUserIntent);
@@ -194,17 +183,6 @@ export default function FrameScrubber() {
     const idleId = idleSchedule(() => {
       startBackgroundPreload();
     });
-
-    // Initial frame 0 render check (runway has fixed CSS height; no layout refresh needed)
-    const checkInitialFrame = () => {
-      const img0 = imagesRef.current[0];
-      if (img0 && img0.complete && img0.naturalWidth > 0) {
-        drawFrame(0);
-      } else {
-        requestAnimationFrame(checkInitialFrame);
-      }
-    };
-    checkInitialFrame();
 
     // Debounced resize handler — only place we re-measure canvas dimensions
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -223,6 +201,9 @@ export default function FrameScrubber() {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", onUserIntent);
       window.removeEventListener("pointerdown", onUserIntent);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
       const cancelIdle = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
         ((id: number) => clearTimeout(id));
       cancelIdle(idleId as number);
@@ -258,7 +239,7 @@ export default function FrameScrubber() {
               scrub: 0.12, // Butter-smooth interpolation
               onUpdate: () => {
                 const target = Math.round(frameTracker.frame);
-                drawFrame(target);
+                requestDraw(target);
               },
             },
           });

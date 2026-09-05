@@ -10,11 +10,27 @@ import { testimonials } from "@/lib/testimonials-data";
 export default function Testimonials() {
   const [idx, setIdx] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isInView, setIsInView] = useState(false);
 
   const go = (next: number) =>
     setIdx((next + testimonials.length) % testimonials.length);
 
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: "100px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isInView) return;
     timer.current = setInterval(
       () => setIdx((i) => (i + 1) % testimonials.length),
       6500,
@@ -22,10 +38,10 @@ export default function Testimonials() {
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, []);
+  }, [isInView]);
 
   return (
-    <section id="testimonials" className="relative bg-ink py-32 text-paper md:py-44">
+    <section ref={sectionRef} id="testimonials" className="relative bg-ink py-32 text-paper md:py-44">
       <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-16">
         <Reveal className="flex items-center gap-5" y={0} duration={1}>
           <span className="font-mono text-[11px] text-stone">14</span>
