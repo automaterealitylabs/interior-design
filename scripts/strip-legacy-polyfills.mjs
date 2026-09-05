@@ -65,8 +65,33 @@ export function cleanBuildOutput(dir) {
       } catch (err) {
         console.warn("Could not process manifest:", fullPath, err);
       }
-    } else if (entry.name.endsWith(".js") && entry.name.includes("polyfill")) {
-      fs.writeFileSync(fullPath, "/* baseline modern browsers */", "utf8");
+    } else if (entry.name.endsWith(".js")) {
+      if (entry.name.includes("polyfill")) {
+        fs.writeFileSync(fullPath, "/* baseline modern browsers */", "utf8");
+      } else {
+        // Fallback: strip Baseline polyfills if any chunk inadvertently bundled them
+        try {
+          const jsContent = fs.readFileSync(fullPath, "utf8");
+          if (jsContent.includes("Array.prototype.at") || jsContent.includes("String.prototype.trimStart")) {
+            const cleanedJs = jsContent
+              .replace(/"trimStart"in String\.prototype\|\|\([^)]+\),?/g, "")
+              .replace(/"trimEnd"in String\.prototype\|\|\([^)]+\),?/g, "")
+              .replace(/"description"in Symbol\.prototype\|\|Object\.defineProperty\([^)]+\),?/g, "")
+              .replace(/Array\.prototype\.flat\|\|\([^)]+\),?/g, "")
+              .replace(/Array\.prototype\.flatMap=function\([^)]+\)\{[^}]+\},?/g, "")
+              .replace(/Promise\.prototype\.finally\|\|\([^)]+\),?/g, "")
+              .replace(/Object\.fromEntries\|\|\([^)]+\),?/g, "")
+              .replace(/Array\.prototype\.at\|\|\([^)]+\),?/g, "")
+              .replace(/Object\.hasOwn\|\|\([^)]+\),?/g, "");
+            if (cleanedJs !== jsContent) {
+              fs.writeFileSync(fullPath, cleanedJs, "utf8");
+              console.log(`✓ Stripped Baseline polyfills from chunk: ${entry.name}`);
+            }
+          }
+        } catch {
+          // Ignore read/write issues on auxiliary assets
+        }
+      }
     }
   }
 }
