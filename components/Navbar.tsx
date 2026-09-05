@@ -8,23 +8,38 @@ import { nav, studio } from "@/lib/site-config";
 
 export default function Navbar() {
   const progressRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
-  const indicatorRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const reduced = usePrefersReducedMotion();
   const pathname = usePathname();
   const isAgency = pathname.startsWith("/work-with-us");
 
-  // Scroll progress bar via passive rAF to avoid main-thread blocking ScrollTrigger
+  // Scroll progress bar: uses CSS animation-timeline when supported (0 JS, 0 forced reflows)
+  // Fallback for older browsers: measures scroll height only on idle/resize, never during scroll
   useEffect(() => {
     const bar = progressRef.current;
     if (!bar || reduced) return;
 
+    // If browser supports CSS scroll-driven animation, let the GPU compositor handle it with 0 JS
+    if (typeof CSS !== "undefined" && CSS.supports && CSS.supports("animation-timeline", "scroll()")) {
+      return;
+    }
+
+    let cachedMax = 0;
+    const measureMax = () => {
+      cachedMax = document.documentElement.scrollHeight - window.innerHeight;
+    };
+
+    // Defer measurement to idle to completely avoid layout thrashing during initial hydration
+    const idleSchedule =
+      (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
+      ((cb: () => void) => setTimeout(cb, 1200));
+    const idleId = idleSchedule(() => measureMax());
+
     let ticking = false;
     const updateProgress = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (max > 0) {
-        const progress = Math.min(1, Math.max(0, window.scrollY / max));
+      if (cachedMax > 0) {
+        const progress = Math.min(1, Math.max(0, window.scrollY / cachedMax));
         bar.style.transform = `scaleX(${progress})`;
       }
       ticking = false;
@@ -38,100 +53,41 @@ export default function Navbar() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    updateProgress();
+    window.addEventListener("resize", measureMax, { passive: true });
 
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measureMax);
+      const cancelIdle =
+        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
+        ((id: number) => clearTimeout(id));
+      cancelIdle(idleId as number);
+    };
   }, [reduced]);
 
-  // Position brass indicator under a specific link element with hardware-accelerated CSS transitions
-  const positionIndicator = (target: HTMLElement | null, instant = false) => {
-    const indicator = indicatorRef.current;
-    const navEl = navRef.current;
-    if (!indicator || !navEl) return;
-
-    if (!target) {
-      indicator.style.opacity = "0";
-      return;
-    }
-
-    const x = target.offsetLeft;
-    const w = target.offsetWidth;
-
-    indicator.style.transition = instant
-      ? "none"
-      : "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease";
-    indicator.style.transform = `translateX(${x}px)`;
-    indicator.style.width = `${w}px`;
-    indicator.style.opacity = "1";
-  };
-
-  // Active route tracking
+  // On homepage, track active section via IntersectionObserver without reading element geometry
   useEffect(() => {
-    const indicator = indicatorRef.current;
-    const navEl = navRef.current;
-    if (!indicator || !navEl) return;
+    if (pathname !== "/") return;
 
-    if (reduced) {
-      indicator.style.opacity = "0";
-      return;
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: "-30% 0px -40% 0px" },
+    );
 
-    // Match the active nav item by pathname
-    const activeIdx = nav.findIndex((item) => {
-      const cleanHref = item.href.split("#")[0];
-      if (cleanHref === pathname) return true;
-      if (cleanHref !== "/" && pathname.startsWith(cleanHref)) return true;
-      return false;
+    nav.forEach((item) => {
+      const id = item.href.replace(/^\//, "");
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
     });
 
-    if (activeIdx !== -1) {
-      const targetEl = navEl.querySelector(`[data-nav-idx="${activeIdx}"]`) as HTMLElement;
-      if (targetEl) {
-        window.requestAnimationFrame(() => positionIndicator(targetEl, true));
-      } else {
-        indicator.style.opacity = "0";
-      }
-    } else {
-      indicator.style.opacity = "0";
-    }
-
-    // On homepage, track on-page sections via IntersectionObserver instead of registering ScrollTriggers
-    if (pathname === "/") {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              const id = entry.target.id;
-              const idx = nav.findIndex((item) => item.href.replace(/^\//, "") === id);
-              if (idx !== -1) {
-                const target = navEl.querySelector(`[data-nav-idx="${idx}"]`) as HTMLElement;
-                if (target) positionIndicator(target);
-              }
-            }
-          }
-        },
-        { rootMargin: "-30% 0px -40% 0px" },
-      );
-
-      nav.forEach((item) => {
-        const id = item.href.replace(/^\//, "");
-        const el = document.getElementById(id);
-        if (el) observer.observe(el);
-      });
-
-      return () => observer.disconnect();
-    }
-
-    // Window resize handler to reposition indicator
-    const handleResize = () => {
-      if (activeIdx !== -1) {
-        const targetEl = navEl.querySelector(`[data-nav-idx="${activeIdx}"]`) as HTMLElement;
-        if (targetEl) positionIndicator(targetEl, true);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [reduced, pathname]);
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -153,7 +109,7 @@ export default function Navbar() {
       {/* scroll progress */}
       <div
         ref={progressRef}
-        className="fixed inset-x-0 top-0 z-[70] h-[2px] w-full origin-left scale-x-0 bg-brass will-change-transform pointer-events-none"
+        className="nav-scroll-progress fixed inset-x-0 top-0 z-[70] h-[2px] w-full origin-left scale-x-0 bg-brass will-change-transform pointer-events-none"
       />
 
       <div className="pointer-events-auto mix-blend-difference">
@@ -166,34 +122,32 @@ export default function Navbar() {
           </Link>
 
           <nav
-            ref={navRef}
             className="hidden items-center gap-8 md:flex relative"
             aria-label="Primary"
           >
-            {/* active indicator */}
-            <div
-              ref={indicatorRef}
-              className="absolute -bottom-1 left-0 h-px bg-brass transition-all duration-300 ease-out origin-center opacity-0 pointer-events-none"
-              aria-hidden="true"
-            />
             {nav.map((item, idx) => {
               const cleanHref = item.href.split("#")[0];
+              const sectionId = item.href.replace(/^\//, "");
               const isActive =
-                cleanHref === pathname ||
-                (cleanHref !== "/" && pathname.startsWith(cleanHref));
+                pathname === "/"
+                  ? (activeSection ? activeSection === sectionId : idx === 0)
+                  : cleanHref === pathname || (cleanHref !== "/" && pathname.startsWith(cleanHref));
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-nav-idx={idx}
                   data-nav-label={item.label}
                   className={`group relative text-[11px] uppercase tracking-luxe transition-colors duration-300 ${
                     isActive ? "text-paper" : "text-paper/75 hover:text-paper"
                   }`}
                 >
                   {item.label}
-                  <span className="absolute -bottom-1 left-0 h-px w-0 bg-brass transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:w-full" />
+                  <span
+                    className={`absolute -bottom-1 left-0 h-px bg-brass transition-all duration-300 ease-out ${
+                      isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-100"
+                    }`}
+                  />
                 </Link>
               );
             })}

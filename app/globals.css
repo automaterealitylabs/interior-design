@@ -226,6 +226,24 @@
   }
 }
 
+/* Compositor-driven native scroll progress bar (0 JS, 0 forced reflows) */
+@supports (animation-timeline: scroll()) {
+  .nav-scroll-progress {
+    animation: navScrollProgress linear both;
+    animation-timeline: scroll();
+    transform-origin: left;
+  }
+
+  @keyframes navScrollProgress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
 /* The scroll runway is compressed to a single viewport under
    prefers-reduced-motion; the scrub JS is skipped too, so the hero
    becomes a static full-screen frame instead of a pinned sequence. */

@@ -272,27 +272,47 @@ export default function FrameScrubber() {
               scrub: true,
             },
           });
-
-          // Hero text entrance animation
-          gsap.from(copy.querySelectorAll<HTMLElement>("[data-hero]"), {
-            autoAlpha: 0,
-            y: 24,
-            duration: 1.2,
-            ease: "power3.out",
-            stagger: 0.08,
-            delay: 0.1,
-            clearProps: "all",
-          });
         }, runway);
       } catch {
         // Gracefully ignore dynamic animation import failure
       }
     };
 
-    initTimeline();
+    let timelineStarted = false;
+    const startTimeline = () => {
+      if (timelineStarted || cancelled) return;
+      timelineStarted = true;
+      initTimeline();
+    };
+
+    const onUserIntent = () => {
+      startTimeline();
+      window.removeEventListener("scroll", onUserIntent);
+      window.removeEventListener("wheel", onUserIntent);
+      window.removeEventListener("touchstart", onUserIntent);
+      window.removeEventListener("pointerdown", onUserIntent);
+    };
+
+    window.addEventListener("scroll", onUserIntent, { passive: true, once: true });
+    window.addEventListener("wheel", onUserIntent, { passive: true, once: true });
+    window.addEventListener("touchstart", onUserIntent, { passive: true, once: true });
+    window.addEventListener("pointerdown", onUserIntent, { passive: true, once: true });
+
+    const idleSchedule =
+      (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
+      ((cb: () => void) => setTimeout(cb, 2200));
+    const idleId = idleSchedule(() => startTimeline());
 
     return () => {
       cancelled = true;
+      window.removeEventListener("scroll", onUserIntent);
+      window.removeEventListener("wheel", onUserIntent);
+      window.removeEventListener("touchstart", onUserIntent);
+      window.removeEventListener("pointerdown", onUserIntent);
+      const cancelIdle =
+        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
+        ((id: number) => clearTimeout(id));
+      cancelIdle(idleId as number);
       if (ctx) ctx.revert();
     };
   }, [reduced, drawFrame]);
