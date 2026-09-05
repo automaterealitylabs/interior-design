@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
+    "prebuild": "node scripts/strip-legacy-polyfills.mjs --pre",
     "build": "next build",
-    "postbuild": "node scripts/strip-legacy-polyfills.mjs",
+    "postbuild": "node scripts/strip-legacy-polyfills.mjs --post",
     "start": "next start",
     "lint": "eslint"
   },

@@ -2,22 +2,38 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Strips legacy nomodule polyfills from Next.js build output.
+ * Strips legacy Baseline JavaScript polyfills from Next.js build.
  * 
- * Next.js automatically emits an extra ~14 KiB core-js polyfill bundle
- * (with nomodule attribute) containing polyfills for Baseline JavaScript
- * features (Array.prototype.at, flat, Object.fromEntries, Object.hasOwn, etc.).
+ * Next.js automatically bundles ~14 KiB of core-js polyfills for Baseline features
+ * (Array.prototype.at, flat, flatMap, Object.fromEntries, Object.hasOwn, String.prototype.trimStart/End)
+ * into modern client bundles.
  * 
- * Modern browsers ignore nomodule scripts, but Lighthouse inspects all referenced
- * scripts and flags them under "Legacy JavaScript / Polyfills" (13.7 KiB wasted bytes).
+ * For modern browsers (Chrome 111+, Safari 16.4+, Firefox 111+, Edge 111+), all of these features
+ * are natively supported. Lighthouse flags them as wasted bytes (13.7 KiB).
  * 
  * This script:
- * 1. Empties polyfillFiles in all build-manifest.json files so SSR doesn't inject it.
- * 2. Removes <script ... noModule> tags from all prerendered HTML files.
- * 3. Truncates polyfill chunk files to empty JS so 0 wasted bytes are served.
+ * 1. Pre-build: Neutralizes Next.js internal polyfill source files so Turbopack doesn't bundle them.
+ * 2. Post-build: Cleans any residual polyfill references in HTML, manifests, and chunk files.
  */
 
-function cleanDirectory(dir) {
+export function neutralizePolyfillSources() {
+  const polyfillDir = path.join(process.cwd(), "node_modules", "next", "dist", "build", "polyfills");
+  if (!fs.existsSync(polyfillDir)) return;
+
+  const targetFiles = ["polyfill-module.js", "polyfill-nomodule.js"];
+  for (const file of targetFiles) {
+    const fullPath = path.join(polyfillDir, file);
+    if (fs.existsSync(fullPath)) {
+      const content = fs.readFileSync(fullPath, "utf8");
+      if (!content.startsWith("/* baseline modern browsers */")) {
+        fs.writeFileSync(fullPath, "/* baseline modern browsers */\n", "utf8");
+        console.log(`✓ Neutralized ${file}`);
+      }
+    }
+  }
+}
+
+export function cleanBuildOutput(dir) {
   if (!fs.existsSync(dir)) return;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
@@ -25,7 +41,7 @@ function cleanDirectory(dir) {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      cleanDirectory(fullPath);
+      cleanBuildOutput(fullPath);
     } else if (entry.name.endsWith(".html")) {
       let content = fs.readFileSync(fullPath, "utf8");
       // Remove any <script ... noModule="" ...></script> tags
@@ -37,7 +53,6 @@ function cleanDirectory(dir) {
       try {
         const json = JSON.parse(fs.readFileSync(fullPath, "utf8"));
         if (Array.isArray(json.polyfillFiles) && json.polyfillFiles.length > 0) {
-          // Truncate the polyfill chunk files themselves
           for (const polyfillFile of json.polyfillFiles) {
             const chunkPath = path.join(process.cwd(), ".next", polyfillFile);
             if (fs.existsSync(chunkPath)) {
@@ -50,10 +65,21 @@ function cleanDirectory(dir) {
       } catch (err) {
         console.warn("Could not process manifest:", fullPath, err);
       }
+    } else if (entry.name.endsWith(".js") && entry.name.includes("polyfill")) {
+      fs.writeFileSync(fullPath, "/* baseline modern browsers */", "utf8");
     }
   }
 }
 
-console.log("Cleaning legacy nomodule polyfills for modern browser targets...");
-cleanDirectory(path.join(process.cwd(), ".next"));
-console.log("✓ Legacy polyfill chunks stripped successfully.");
+// Check arguments or run default full routine
+const arg = process.argv[2];
+if (arg === "--pre") {
+  neutralizePolyfillSources();
+} else if (arg === "--post") {
+  cleanBuildOutput(path.join(process.cwd(), ".next"));
+} else {
+  neutralizePolyfillSources();
+  cleanBuildOutput(path.join(process.cwd(), ".next"));
+}
+
+console.log("✓ Modern browser Baseline polyfill stripping complete.");
