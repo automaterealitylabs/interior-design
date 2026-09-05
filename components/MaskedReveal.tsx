@@ -61,8 +61,16 @@ export default function MaskedReveal({
         const [entry] = entries;
         if (entry.isIntersecting) {
           observer.unobserve(el);
+          inner.style.willChange = "transform";
           inner.style.transition = `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`;
           inner.style.transform = "translate3d(0, 0, 0) scale(1)";
+          inner.addEventListener(
+            "transitionend",
+            () => {
+              inner.style.willChange = "auto";
+            },
+            { once: true },
+          );
         }
       },
       { rootMargin },

@@ -49,7 +49,7 @@ export default function PricingTeaser() {
           {pricingPackages.map((pkg, idx) => (
             <Reveal
               key={pkg.id}
-              className={`relative flex h-full flex-col justify-between rounded-xs border p-8 transition-all duration-500 md:p-10 ${pkg.featured
+              className={`relative flex h-full flex-col justify-between rounded-xs border p-8 transition-colors duration-300 md:p-10 ${pkg.featured
                   ? "border-brass/70 bg-paper-2 shadow-xl ring-1 ring-brass/30"
                   : "border-line bg-paper hover:border-line-hover"
                 }`}
@@ -110,7 +110,7 @@ export default function PricingTeaser() {
               <div className="mt-10 pt-6 border-t border-line">
                 <Link
                   href={`/pricing?tier=${pkg.id}`}
-                  className={`block w-full text-center py-3.5 px-6 text-[11px] uppercase tracking-luxe transition-all duration-300 ${pkg.featured
+                  className={`block w-full text-center py-3.5 px-6 text-[11px] uppercase tracking-luxe transition-colors duration-300 ${pkg.featured
                       ? "bg-ink text-paper hover:bg-brass hover:text-paper"
                       : "border border-line text-ink hover:border-ink hover:bg-paper-2"
                     }`}

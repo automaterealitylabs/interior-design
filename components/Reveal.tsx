@@ -37,14 +37,12 @@ export default function Reveal({
     if (!el) return;
     if (reduced) {
       el.style.opacity = "1";
-      el.style.visibility = "visible";
       el.style.transform = "none";
       return;
     }
 
-    // Set initial hidden state without calling gsap.set to avoid hydration thrashing
+    // Set initial hidden state using only compositor-friendly properties (opacity and transform)
     el.style.opacity = "0";
-    el.style.visibility = "hidden";
     if (y) el.style.transform = `translate3d(0, ${y}px, 0)`;
 
     // Calculate rootMargin from start prop (e.g. "top 86%" -> bottom -14%)
@@ -60,10 +58,17 @@ export default function Reveal({
         const [entry] = entries;
         if (entry.isIntersecting) {
           observer.unobserve(el);
+          el.style.willChange = "transform, opacity";
           el.style.transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`;
           el.style.opacity = "1";
-          el.style.visibility = "visible";
           el.style.transform = "translate3d(0, 0, 0)";
+          el.addEventListener(
+            "transitionend",
+            () => {
+              el.style.willChange = "auto";
+            },
+            { once: true },
+          );
         }
       },
       { rootMargin },

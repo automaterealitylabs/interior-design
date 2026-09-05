@@ -64,8 +64,16 @@ export default function TextReveal({
           observer.disconnect();
           lines.forEach((line, idx) => {
             const lineDelay = delay + idx * stagger;
+            line.style.willChange = "transform";
             line.style.transition = `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${lineDelay}s`;
             line.style.transform = "translate3d(0, 0, 0)";
+            line.addEventListener(
+              "transitionend",
+              () => {
+                line.style.willChange = "auto";
+              },
+              { once: true },
+            );
           });
         }
       },
