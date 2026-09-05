@@ -1,5 +1,3 @@
-"use client";
-
 import Reveal from "./Reveal";
 import { trustStats, trustGuarantees } from "@/lib/site";
 

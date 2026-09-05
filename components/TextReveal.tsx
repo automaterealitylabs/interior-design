@@ -3,8 +3,6 @@
 import {
   useEffect,
   useRef,
-  Children,
-  isValidElement,
   type ReactNode,
   type ElementType,
 } from "react";
@@ -56,21 +54,35 @@ export default function TextReveal({
       return;
     }
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        lines,
-        { yPercent: 105 },
-        {
-          yPercent: 0,
-          duration: 1 / speed,
-          ease,
-          stagger,
-          delay,
-        },
-      );
-    }, el);
+    let ctx: gsap.Context | null = null;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          observer.disconnect();
+          ctx = gsap.context(() => {
+            gsap.fromTo(
+              lines,
+              { yPercent: 105 },
+              {
+                yPercent: 0,
+                duration: 1 / speed,
+                ease,
+                stagger,
+                delay,
+              },
+            );
+          }, el);
+        }
+      },
+      { rootMargin: "120px 0px 0px 0px" },
+    );
 
-    return () => ctx.revert();
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      if (ctx) ctx.revert();
+    };
   }, [reduced, speed, stagger, delay, ease]);
 
   return (

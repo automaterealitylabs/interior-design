@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Reveal from "./Reveal";
 import TextReveal from "./TextReveal";
-import { testimonials } from "@/lib/site";
+import { testimonials } from "@/lib/testimonials-data";
 
 /** A single large quote that rotates on a slow cadence — one voice at a
  *  time, with manual prev/next and a running counter. */

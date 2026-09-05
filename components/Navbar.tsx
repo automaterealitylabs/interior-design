@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { gsap, ScrollTrigger, usePrefersReducedMotion } from "@/lib/animations";
-import { nav, studio } from "@/lib/site";
+import { usePrefersReducedMotion } from "@/lib/animations";
+import { nav, studio } from "@/lib/site-config";
 
 export default function Navbar() {
   const progressRef = useRef<HTMLDivElement>(null);
@@ -15,24 +15,35 @@ export default function Navbar() {
   const pathname = usePathname();
   const isAgency = pathname.startsWith("/work-with-us");
 
-  // Scroll progress bar
+  // Scroll progress bar via passive rAF to avoid main-thread blocking ScrollTrigger
   useEffect(() => {
-    if (!progressRef.current || reduced) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        progressRef.current,
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          ease: "none",
-          scrollTrigger: { start: 0, end: "max", scrub: 0.4 },
-        },
-      );
-    });
-    return () => ctx.revert();
+    const bar = progressRef.current;
+    if (!bar || reduced) return;
+
+    let ticking = false;
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max > 0) {
+        const progress = Math.min(1, Math.max(0, window.scrollY / max));
+        bar.style.transform = `scaleX(${progress})`;
+      }
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    updateProgress();
+
+    return () => window.removeEventListener("scroll", onScroll);
   }, [reduced]);
 
-  // Position brass indicator under a specific link element
+  // Position brass indicator under a specific link element with hardware-accelerated CSS transitions
   const positionIndicator = (target: HTMLElement | null, instant = false) => {
     const indicator = indicatorRef.current;
     const navEl = navRef.current;
@@ -43,23 +54,15 @@ export default function Navbar() {
       return;
     }
 
-    // Direct offset geometry relative to parent navEl avoids getBoundingClientRect forced reflows
     const x = target.offsetLeft;
     const w = target.offsetWidth;
 
-    if (instant) {
-      indicator.style.transform = `translateX(${x}px)`;
-      indicator.style.width = `${w}px`;
-      indicator.style.opacity = "1";
-    } else {
-      gsap.to(indicator, {
-        x,
-        width: w,
-        opacity: 1,
-        duration: 0.35,
-        ease: "power3.out",
-      });
-    }
+    indicator.style.transition = instant
+      ? "none"
+      : "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease";
+    indicator.style.transform = `translateX(${x}px)`;
+    indicator.style.width = `${w}px`;
+    indicator.style.opacity = "1";
   };
 
   // Active route tracking
@@ -84,7 +87,7 @@ export default function Navbar() {
     if (activeIdx !== -1) {
       const targetEl = navEl.querySelector(`[data-nav-idx="${activeIdx}"]`) as HTMLElement;
       if (targetEl) {
-        positionIndicator(targetEl, true);
+        window.requestAnimationFrame(() => positionIndicator(targetEl, true));
       } else {
         indicator.style.opacity = "0";
       }

@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import Reveal from "./Reveal";
 import TextReveal from "./TextReveal";
@@ -33,19 +31,16 @@ export default function PricingTeaser() {
             </TextReveal>
           </Reveal>
 
-          <Reveal
-            as={Link}
-            href="/pricing"
-            className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-ink transition-colors hover:text-brass"
-            y={20}
-            duration={1}
-            delay={0.2}
-            start="top 90%"
-          >
-            <span>Explore full cost calculator & matrix</span>
-            <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">
-              →
-            </span>
+          <Reveal y={20} duration={1} delay={0.2} start="top 90%">
+            <Link
+              href="/pricing"
+              className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-ink transition-colors hover:text-brass"
+            >
+              <span>Explore full cost calculator & matrix</span>
+              <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
+            </Link>
           </Reveal>
         </div>
 

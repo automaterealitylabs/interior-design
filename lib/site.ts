@@ -1,32 +1,7 @@
 import type { PlateKey } from "@/components/plates";
 
-/* ── Scarcity & Calendar Configuration ────────────────────────────────── */
-export const CURRENT_SEASON = "2026";
-export const OPEN_COMMISSIONS_COUNT = 2;
-
-export const scarcityNotice = {
-  season: CURRENT_SEASON,
-  openCommissions: OPEN_COMMISSIONS_COUNT,
-  note: `Currently accepting: ${OPEN_COMMISSIONS_COUNT === 2 ? "two" : OPEN_COMMISSIONS_COUNT} commissions for ${CURRENT_SEASON}`,
-  subText: `${OPEN_COMMISSIONS_COUNT === 2 ? "Two" : OPEN_COMMISSIONS_COUNT} commissions remain open for the ${CURRENT_SEASON} season — we hold the calendar small so the work stays human.`,
-};
-
-export const studio = {
-  name: "LUMIÈRE INTERIORS",
-  tagline: "Interior Design • Architecture • Bespoke Spaces",
-};
-
-export const nav = [
-  { label: "Work", href: "/work" },
-  { label: "Services", href: "/services" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Process", href: "/process" },
-  { label: "Shop", href: "/shop" },
-  { label: "About", href: "/about" },
-  { label: "Journal", href: "/journal" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
-];
+import { scarcityNotice } from "./site-config";
+export * from "./site-config";
 
 /* ── Trust Metrics & Guarantees ───────────────────────────────────────── */
 
@@ -1166,38 +1141,7 @@ export const team = [
 
 /* ── Testimonials ─────────────────────────────────────────────────────── */
 
-export const testimonials = [
-  {
-    name: "Sarah & James Whitfield",
-    project: "Villa Meridian — Palm Springs",
-    rating: 5,
-    text: "Lumière didn't just design our home — they understood how we live. Every room feels like it was made for us, because it was.",
-  },
-  {
-    name: "Rohit & Meera Singhal",
-    project: "The Courtyard House — Bandra, Mumbai",
-    rating: 5,
-    text: "A rare studio that treats a residential project with architectural discipline and flawless execution. Zero hidden costs from start to finish.",
-  },
-  {
-    name: "Vikram & Suniti Ahuja",
-    project: "The Lightwell Penthouse — New Delhi",
-    rating: 5,
-    text: "The light in our penthouse is extraordinary. The milestone payment transparency and on-time handover set a new benchmark.",
-  },
-  {
-    name: "Thomas Bergström",
-    project: "Maison Verre — Indiranagar, Bengaluru",
-    rating: 5,
-    text: "A studio that approaches commercial craft with the same intimacy as a private home. The attention to joinery details is unmatched.",
-  },
-  {
-    name: "Elena Voss",
-    project: "The Loft at Atlas — Hyderabad",
-    rating: 5,
-    text: "We gave them a bare shell and they gave us a sanctuary of light and quiet confidence. Every millimetre was accounted for.",
-  },
-];
+export * from "./testimonials-data";
 
 /* ── Blog / Journal (Categorized) ─────────────────────────────────────── */
 
@@ -1399,23 +1343,6 @@ export const costCalculator = {
   },
 };
 
-/* ── Contact & Flagship Studios ───────────────────────────────────────── */
-
-export const contact = {
-  email: "hello@lumiere-interiors.studio",
-  phone: "+91 22 6902 4400",
-  whatsapp: "+91 98200 12345",
-  address: "Flagship Atelier: Waterfield Road, Bandra West, Mumbai 400050",
-  secondaryAddress: "Design Studio: Golf Course Road, DLF Phase 5, Gurugram 122002",
-  hours: "Monday – Saturday: 10:00 AM – 7:00 PM (By Appointment)",
-  responseTime: "We respond to all project inquiries within 24 hours.",
-  socials: [
-    { label: "Instagram", href: "https://instagram.com" },
-    { label: "Pinterest", href: "https://pinterest.com" },
-    { label: "Behance", href: "https://behance.net" },
-    { label: "LinkedIn", href: "https://linkedin.com" },
-  ],
-};
 
 /* ── Homepage Exclusive Modules ───────────────────────────────────────── */
 

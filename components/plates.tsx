@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Bespoke SVG "technical plates" used as the project visuals.
  * Drawn in the language of an architecture office: thin linework,

@@ -48,7 +48,7 @@ export default function MaskedReveal({
       return;
     }
 
-    gsap.set(inner, { yPercent: 100, scale });
+    inner.style.transform = `translate3d(0, 100%, 0) scale(${scale})`;
 
     let rootMargin = "0px 0px -15% 0px";
     const match = start.match(/top\s+(\d+)%/);

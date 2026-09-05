@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { contact, nav, studio } from "@/lib/site";
+import { contact, nav, studio } from "@/lib/site-config";
 import FloatingWhatsApp from "./FloatingWhatsApp";
 
 export default function Footer() {

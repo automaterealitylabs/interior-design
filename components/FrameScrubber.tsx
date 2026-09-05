@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { gsap, ScrollTrigger, debouncedRefresh, usePrefersReducedMotion } from "@/lib/animations";
-import { studio } from "@/lib/site";
+import { gsap, usePrefersReducedMotion } from "@/lib/animations";
+import { studio } from "@/lib/site-config";
 
 const TOTAL_FRAMES = 300;
 const framePath = (i: number) =>
@@ -128,7 +128,9 @@ export default function FrameScrubber() {
   }, [loadFrame]);
 
   // Keep drawFrameRef synced with latest drawFrame callback
-  drawFrameRef.current = drawFrame;
+  useEffect(() => {
+    drawFrameRef.current = drawFrame;
+  }, [drawFrame]);
 
   // Intelligent tiered background preloader
   useEffect(() => {
@@ -138,41 +140,60 @@ export default function FrameScrubber() {
     // Initial canvas measurement
     measureCanvas();
 
-    // Tier 1: Immediately load first 20 frames for instant initial scroll
-    for (let i = 0; i < 20; i++) {
-      loadFrame(i);
-    }
+    // Tier 1: Immediately load frame 0 for instant visual paint without main-thread contention
+    loadFrame(0);
 
-    // Tier 2: Stream keyframes (every 4th frame) across the whole runway
-    const keyframesTimeout = setTimeout(() => {
-      if (cancelled) return;
-      for (let i = 20; i < TOTAL_FRAMES; i += 4) {
+    // Tier 2 & 3: Defer all further background frame preloading until after first scroll or idle time
+    let backgroundPreloadStarted = false;
+    const startBackgroundPreload = () => {
+      if (backgroundPreloadStarted || cancelled) return;
+      backgroundPreloadStarted = true;
+
+      // Small buffer (1-10) for initial scroll movement
+      for (let i = 1; i <= 10; i++) {
         loadFrame(i);
       }
-    }, 150);
 
-    // Tier 3: Stream all remaining frames progressively in chunked idle batches
-    const fullQueue: number[] = [];
-    for (let i = 20; i < TOTAL_FRAMES; i++) {
-      if (i % 4 !== 0) fullQueue.push(i);
-    }
-
-    let qIdx = 0;
-    const BATCH_SIZE = 12;
-
-    const streamNextBatch = () => {
-      if (cancelled || qIdx >= fullQueue.length) return;
-      const end = Math.min(qIdx + BATCH_SIZE, fullQueue.length);
-      for (let i = qIdx; i < end; i++) {
-        loadFrame(fullQueue[i]);
+      // Idle queue for remaining frames
+      const remainingFrames: number[] = [];
+      for (let i = 11; i < TOTAL_FRAMES; i += 2) {
+        remainingFrames.push(i);
       }
-      qIdx = end;
-      if (qIdx < fullQueue.length) {
-        setTimeout(streamNextBatch, 80);
+      for (let i = 12; i < TOTAL_FRAMES; i += 2) {
+        remainingFrames.push(i);
       }
+
+      let qIdx = 0;
+      const BATCH_SIZE = 8;
+      const streamNext = () => {
+        if (cancelled || qIdx >= remainingFrames.length) return;
+        const end = Math.min(qIdx + BATCH_SIZE, remainingFrames.length);
+        for (let i = qIdx; i < end; i++) {
+          loadFrame(remainingFrames[i]);
+        }
+        qIdx = end;
+        if (qIdx < remainingFrames.length) {
+          setTimeout(streamNext, 120);
+        }
+      };
+
+      setTimeout(streamNext, 200);
     };
 
-    const streamTimeout = setTimeout(streamNextBatch, 400);
+    // Trigger preload on first scroll/touch or when idle
+    const onUserIntent = () => {
+      startBackgroundPreload();
+      window.removeEventListener("scroll", onUserIntent);
+      window.removeEventListener("pointerdown", onUserIntent);
+    };
+    window.addEventListener("scroll", onUserIntent, { passive: true, once: true });
+    window.addEventListener("pointerdown", onUserIntent, { passive: true, once: true });
+
+    const idleSchedule = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
+      ((cb: () => void) => setTimeout(cb, 2500));
+    const idleId = idleSchedule(() => {
+      startBackgroundPreload();
+    });
 
     // Initial frame 0 render check (runway has fixed CSS height; no layout refresh needed)
     const checkInitialFrame = () => {
@@ -198,10 +219,13 @@ export default function FrameScrubber() {
 
     return () => {
       cancelled = true;
-      clearTimeout(keyframesTimeout);
-      clearTimeout(streamTimeout);
       clearTimeout(resizeTimer);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", onUserIntent);
+      window.removeEventListener("pointerdown", onUserIntent);
+      const cancelIdle = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
+        ((id: number) => clearTimeout(id));
+      cancelIdle(idleId as number);
     };
   }, [loadFrame, drawFrame, measureCanvas]);
 
@@ -271,8 +295,6 @@ export default function FrameScrubber() {
         clearProps: "all",
       });
     }, runway);
-
-    debouncedRefresh();
 
     return () => ctx.revert();
   }, [reduced, drawFrame]);

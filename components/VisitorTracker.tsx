@@ -38,13 +38,17 @@ export default function VisitorTracker() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    try {
-      const search = window.location.search || "";
-      const fullPath = (pathname || "/") + search;
+    const schedule = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback ||
+      ((cb: () => void) => setTimeout(cb, 1500));
 
-      // Prevent duplicate triggers for the same path in immediate succession
-      if (lastTrackedRef.current === fullPath) return;
-      lastTrackedRef.current = fullPath;
+    const id = schedule(() => {
+      try {
+        const search = window.location.search || "";
+        const fullPath = (pathname || "/") + search;
+
+        // Prevent duplicate triggers for the same path in immediate succession
+        if (lastTrackedRef.current === fullPath) return;
+        lastTrackedRef.current = fullPath;
 
       const visitorId = getOrSetVisitorId();
       const sessionId = getOrSetSessionId();
@@ -91,6 +95,13 @@ export default function VisitorTracker() {
     } catch {
       // Completely swallow client tracking errors
     }
+    });
+
+    return () => {
+      const cancel = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback ||
+        ((id: number) => clearTimeout(id));
+      cancel(id as number);
+    };
   }, [pathname]);
 
   return null;

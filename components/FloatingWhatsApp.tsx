@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { contact, scarcityNotice } from "@/lib/site";
+import { contact, scarcityNotice } from "@/lib/site-config";
 
 export default function FloatingWhatsApp() {
   const [isOpen, setIsOpen] = useState(false);

@@ -13,7 +13,7 @@ type RevealProps = {
   y?: number;
   start?: string;
   duration?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 /** Reveals its children from y-offset + fade when scrolled into view.
@@ -41,8 +41,10 @@ export default function Reveal({
       return;
     }
 
-    // Set initial hidden state without registering a ScrollTrigger
-    gsap.set(el, { autoAlpha: 0, y });
+    // Set initial hidden state without calling gsap.set to avoid hydration thrashing
+    el.style.opacity = "0";
+    el.style.visibility = "hidden";
+    if (y) el.style.transform = `translate3d(0, ${y}px, 0)`;
 
     // Calculate rootMargin from start prop (e.g. "top 86%" -> bottom -14%)
     let rootMargin = "0px 0px -14% 0px";
