@@ -39,7 +39,6 @@ export default function FrameScrubber() {
           src="/frames/frame-0001.webp"
           alt="Lumière Interiors — bespoke architectural interior"
           fetchPriority="high"
-          decoding="async"
           width={1920}
           height={1080}
           className="pointer-events-none absolute inset-0 h-full w-full object-cover"

@@ -63,9 +63,13 @@ export default function HeroCanvas({ runwayRef, copyRef }: HeroCanvasProps) {
 
       currentFrameRef.current = frameIndex;
       loadFrame(frameIndex);
-      if (frameIndex + 1 < TOTAL_FRAMES) loadFrame(frameIndex + 1);
-      if (frameIndex + 2 < TOTAL_FRAMES) loadFrame(frameIndex + 2);
-      if (frameIndex - 1 >= 0) loadFrame(frameIndex - 1);
+      // Only preload adjacent frames during active scrubbing — not on initial load
+      // (prevents frame-0002 and frame-0003 from downloading during the LCP window)
+      if (frameIndex > 0) {
+        if (frameIndex + 1 < TOTAL_FRAMES) loadFrame(frameIndex + 1);
+        if (frameIndex + 2 < TOTAL_FRAMES) loadFrame(frameIndex + 2);
+        if (frameIndex - 1 >= 0) loadFrame(frameIndex - 1);
+      }
 
       const images = imagesRef.current;
       const targetImg = images[frameIndex];

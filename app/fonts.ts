@@ -2,7 +2,7 @@ import { Archivo, Fraunces, Geist_Mono } from "next/font/google";
 
 export const archivo = Archivo({
   subsets: ["latin"],
-  display: "optional",
+  display: "swap",
   variable: "--font-archivo",
   preload: true,
 });
