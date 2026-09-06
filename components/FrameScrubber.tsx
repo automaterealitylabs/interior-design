@@ -167,7 +167,7 @@ export default function FrameScrubber() {
       for (let i = 1; i <= 20; i++) {
         setTimeout(() => {
           if (!cancelled) loadFrame(i);
-        }, i * 35);
+        }, 300 + i * 50);
       }
     };
 
@@ -297,6 +297,15 @@ export default function FrameScrubber() {
       className="hero-runway relative h-[500vh] sm:h-[650vh]"
     >
       <div className="sticky top-0 h-svh w-full overflow-hidden bg-ink">
+        {/* Instant First Frame LCP Image (renders synchronously at FCP before JS hydration) */}
+        <img
+          src="/frames/frame-0001.webp"
+          alt="Lumière Interiors bespoke architectural design"
+          fetchPriority="high"
+          decoding="async"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        />
+
         {/* High-Performance 60FPS Frame Canvas */}
         <canvas
           ref={canvasRef}

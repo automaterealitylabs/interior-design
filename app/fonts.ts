@@ -18,5 +18,5 @@ export const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "optional",
   variable: "--font-geist-mono",
-  preload: true,
+  preload: false,
 });
