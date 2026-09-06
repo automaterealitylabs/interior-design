@@ -110,12 +110,13 @@ export default function PricingTeaser() {
               <div className="mt-10 pt-6 border-t border-line">
                 <Link
                   href={`/pricing?tier=${pkg.id}`}
+                  aria-label={`Estimate space with ${pkg.name} tier`}
                   className={`block w-full text-center py-3.5 px-6 text-[11px] uppercase tracking-luxe transition-colors duration-300 ${pkg.featured
                       ? "bg-ink text-paper hover:bg-brass hover:text-paper"
                       : "border border-line text-ink hover:border-ink hover:bg-paper-2"
                     }`}
                 >
-                  Estimate My Space →
+                  Estimate My Space <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </Reveal>

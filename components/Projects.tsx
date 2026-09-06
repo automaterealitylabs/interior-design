@@ -201,11 +201,12 @@ export default function Projects() {
                         </p>
                         <Link
                           href={`/work/${p.slug}`}
+                          aria-label={`View case study: ${p.name}`}
                           className="group relative mt-7 inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-ink/80 transition-colors hover:text-ink"
                         >
                           View case study
                           <span className="absolute -bottom-1 left-0 h-px w-0 bg-brass transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:w-full" />
-                          <span className="text-brass relative z-10 transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-0.5">
+                          <span className="text-brass relative z-10 transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-0.5" aria-hidden="true">
                             ↗
                           </span>
                         </Link>

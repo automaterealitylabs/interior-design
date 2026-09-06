@@ -243,19 +243,6 @@
     }
   }
 
-  .hero-copy-fade {
-    animation: heroCopyFade linear both;
-    animation-timeline: scroll();
-    animation-range: 0vh 120vh;
-  }
-
-  @keyframes heroCopyFade {
-    to {
-      opacity: 0;
-      transform: translateY(-28%);
-      visibility: hidden;
-    }
-  }
 }
 
 /* Declarative initial states for scroll reveal animations (eliminates mount-time JS forced reflows) */

@@ -123,10 +123,11 @@ export default function SignatureWorks() {
 
                 <Link
                   href={`/work/${slug}`}
+                  aria-label={`Explore full case study: ${f.title}`}
                   className="group mt-8 inline-flex items-center gap-3 text-[11px] uppercase tracking-luxe text-paper/80 transition-colors hover:text-brass"
                 >
                   <span>Explore full case study</span>
-                  <span className="text-brass transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  <span className="text-brass transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
                 </Link>
               </div>
             </Reveal>
