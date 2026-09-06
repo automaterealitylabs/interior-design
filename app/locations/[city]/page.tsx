@@ -84,7 +84,7 @@ export default async function CityLocationPage({ params }: Props) {
               <div className="mt-10 flex flex-wrap items-center gap-6 font-mono text-[11px] text-stone">
                 <span className="text-paper">Studio Address: {loc.address}</span>
                 <span className="text-brass">•</span>
-                <a href={`tel:${loc.phone}`} className="text-brass hover:underline">{loc.phone}</a>
+                <a href={`tel:${loc.phone.replace(/\s+/g, "")}`} className="text-brass hover:underline">{loc.phone}</a>
               </div>
             </Reveal>
           </div>

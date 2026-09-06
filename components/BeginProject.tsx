@@ -104,7 +104,7 @@ export default function BeginProject() {
                     Direct Studio
                   </span>
                   <a
-                    href={`tel:${contact.phone}`}
+                    href={`tel:${contact.phone.replace(/\s+/g, "")}`}
                     className="mt-1 block text-paper hover:text-brass transition-colors"
                   >
                     {contact.phone}

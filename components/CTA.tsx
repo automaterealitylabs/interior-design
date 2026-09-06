@@ -107,7 +107,7 @@ export default function CTA() {
               </div>
               <div>
                 <p className="font-mono text-[9px] uppercase tracking-luxe text-stone">Flagship Line</p>
-                <a href={`tel:${contact.phone}`} className="mt-1 block font-serif text-lg italic text-paper hover:text-brass">
+                <a href={`tel:${contact.phone.replace(/\s+/g, "")}`} className="mt-1 block font-serif text-lg italic text-paper hover:text-brass">
                   {contact.phone}
                 </a>
               </div>
