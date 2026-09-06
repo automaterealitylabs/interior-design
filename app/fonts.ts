@@ -11,7 +11,7 @@ export const fraunces = Fraunces({
   subsets: ["latin"],
   display: "optional",
   variable: "--font-fraunces",
-  preload: true,
+  preload: false,
 });
 
 export const geistMono = Geist_Mono({
